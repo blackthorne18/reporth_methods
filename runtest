@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python3 rc_entry.py --repin ./input/og_replist.txt --genomes ../input/genomes
