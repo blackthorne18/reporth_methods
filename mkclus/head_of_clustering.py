@@ -164,6 +164,12 @@ def setup_flank_matches():
         all_parameters['bank'], left_flank, flank_gene_param)
     rhs_hits = prepare_datasets.search_blastdb(
         all_parameters['bank'], right_flank, flank_gene_param)
+    # -------------------METHODS-PAPER----------------------------
+    # Storing the LHS and RHS hits to pickle file
+    pickle.dump(lhs_hits, open("./temp/lhs_hits.p", "wb"))
+    pickle.dump(rhs_hits, open("./temp/rhs_hits.p", "wb"))
+    store_nearby_reps = {'L': {}, 'R': {}}
+    # ------------------------------------------------------------
     for key, repin in repins_with_1k_flanks.items():
         repname = key.replace(" ", "_")
 
@@ -172,6 +178,7 @@ def setup_flank_matches():
             for hit in lhs_hits[repname]:
                 # hit[1] = hit[1][:3].lower() + hit[1][3:]
                 near_reps = nearby_repins(hit[1], hit[4], hit[5])
+                store_nearby_reps['L'][repname] = [near_reps] + [hit]
                 for rep in near_reps:
                     # ------------------------------
                     # DISCLAIMER
@@ -180,7 +187,7 @@ def setup_flank_matches():
                     # ------------------------------
                     mixed_clusters[-1].append([rep[0], switch_dir[rep[1]]])
 
-                    # flank_pairwise_dists stores pairwise distances
+                    # flank_pairwise_dists stores pairwise distance
                     # between all flanking sequences
                     hit[0] = hit[0].replace(" ", "_")
                     rep[0] = rep[0].replace(" ", "_")
@@ -201,6 +208,7 @@ def setup_flank_matches():
             for hit in rhs_hits[repname]:
                 # hit[1] = hit[1][:3].lower() + hit[1][3:]
                 near_reps = nearby_repins(hit[1], hit[4], hit[5])
+                store_nearby_reps['R'][repname] = [near_reps] + [hit]
                 for rep in near_reps:
                     # ------------------------------
                     # DISCLAIMER
@@ -224,6 +232,14 @@ def setup_flank_matches():
                     flank_pairwise_dists['R'][hit[0]][rep[0]] = hit[2] / 100
                     flank_pairwise_dists['R'][rep[0]][hit[0]] = hit[2] / 100
                     # End of Storing Meta Data
+
+    # -------------------METHODS-PAPER---------------------------------------
+    # Storing the sequence similarity between flanking sequences
+    pickle.dump(flank_pairwise_dists, open(
+        "./temp/flank_pairwise_dists.p", "wb"))
+    # Storing information on REPINs present close to flanking sequences
+    pickle.dump(store_nearby_reps, open("./temp/store_nearby_reps.p", "wb"))
+    # -----------------------------------------------------------------------
 
     pickle.dump(mixed_clusters, open(
         temp_files + f"mixed_clusters_{todaysdate}.p", 'wb'))
