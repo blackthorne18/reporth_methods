@@ -347,7 +347,7 @@ def flankclusterer():
                 logging_mergers.append(logstring)
                 to_merge.append((key1, key2))
 
-    ts_dictionary = {k: v[0] for k, v in clusters.items}
+    ts_dictionary = {k: v[0] for k, v in clusters.items()}
     pickle.dump(ts_dictionary, open(
         f"{all_parameters['out']}/ts_dictionary_{todaysdate}.p", "wb"))
 

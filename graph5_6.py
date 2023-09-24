@@ -41,15 +41,57 @@ def read_input():
                 bob = fread[i][1:].split(" ")
                 pathmk.append({'clus': None, 'path': None, 0: []})
                 pathmk[-1]['clus'] = [int(x) for x in bob[0].split("_")]
-                pathmk[-1]['path'] = bob[1]
+                pathmk[-1]['path'] = bob[-1]
             else:
                 pathmk[-1][0].append(fread[i].replace(" ", "_"))
 
 
 @timethis
 def graph5():
+    reversekey = {}
     for item in pathmk:
-        pass
+        for rep in item[0]:
+            reversekey[rep] = item['path']
+
+    graphs = {'both': {}, 'left': {}, 'right': {}}
+    bygen = {'both': {}, 'left': {}, 'right': {}}
+    for key, val in clusters.items():
+        if len(val) < 2:
+            continue
+        graphs['both'][key] = 0
+        graphs['left'][key] = 0
+        graphs['right'][key] = 0
+        for rep in val:
+            graphs[reversekey[rep]][key] += 1
+            gen = rep.split("_")[0]
+            if gen not in bygen[reversekey[rep]]:
+                bygen[reversekey[rep]][gen] = 0
+            bygen[reversekey[rep]][gen] += 1
+
+    gsum = {k: sum(v.values()) for k, v in graphs.items()}
+    gbb = np.array(list(bygen['both'].values()))
+    gbl = np.array(list(bygen['left'].values()))
+    gbr = np.array(list(bygen['right'].values()))
+    lbb = range(len(bygen['both']))
+    gennames = [key[3:] for key in bygen['both']]
+
+    plt.subplot(1, 3, 1)
+    plt.bar(range(len(gsum)), gsum.values())
+    plt.xticks(range(len(gsum)), ["Both", "Left", "Right"])
+    plt.ylabel("Number of REPINs")
+    # plt.title("1.A. Left Flanking Sequnce")
+    plt.subplot(1, 3, (2, 3))
+    plt.bar(lbb, gbb, label='Both')
+    plt.bar(lbb, gbl, bottom=gbb, label='Left')
+    plt.bar(lbb, gbr, bottom=gbb + gbl, label='Right')
+    plt.xticks(lbb, gennames, rotation=90)
+    plt.ylabel("Number of REPINs")
+    plt.legend()
+    # plt.title("1.B. Right Flanking Sequnce")
+    plt.suptitle(
+        "REPINs clustered based on both, or one of the flanking sequences")
+    plt.tight_layout()
+    plt.show()
 
 
 @timethis

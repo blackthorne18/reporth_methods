@@ -7,15 +7,6 @@ For Step 3:
         Note                 : Have this as a heatmap?
         Data Needed          : from the stage where I look for closest REPIN
 
-For Step 5:
-    Graph 5:
-        (x axis) Plot graph  : for each cluster
-        (y axis) showing     : How many REPINs are included because both flanking sequences match, and how many for LHS, RHS
-        Example              : In a cluster of six REPINs, say A,B,C are grouped because both flanks match, then D because LHS
-                               matches and E and F because RHSs match. Then the stacked bar graph would have 3, 1, 2 stacked
-        Note                 : Also show as percentage or one graph for each type of stacking
-        Data Needed          : post BLAST clustering stage
-
 For Step 6:
     Graph 6:
         (x axis) Plot graph  : for each genome
