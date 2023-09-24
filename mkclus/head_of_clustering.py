@@ -122,7 +122,7 @@ def prepare_repin_dict(mixed_clusters):
     for key, val in inverse_repdict.items():
         if len(set(val)) > 1:
             combval = '\n'.join(val)
-            logstring = f">{key[0]}_{key[1]} self\n{combval}"
+            logstring = f">{key[0]}_{key[1]} both\n{combval}"
             logging_mergers.append(logstring)
 
     logging_repin_dict = {}
@@ -178,7 +178,9 @@ def setup_flank_matches():
             for hit in lhs_hits[repname]:
                 # hit[1] = hit[1][:3].lower() + hit[1][3:]
                 near_reps = nearby_repins(hit[1], hit[4], hit[5])
-                store_nearby_reps['L'][repname] = [near_reps] + [hit]
+                if repname not in store_nearby_reps['L']:
+                    store_nearby_reps['L'][repname] = {}
+                store_nearby_reps['L'][repname][hit[1]] = near_reps
                 for rep in near_reps:
                     # ------------------------------
                     # DISCLAIMER
@@ -208,7 +210,9 @@ def setup_flank_matches():
             for hit in rhs_hits[repname]:
                 # hit[1] = hit[1][:3].lower() + hit[1][3:]
                 near_reps = nearby_repins(hit[1], hit[4], hit[5])
-                store_nearby_reps['R'][repname] = [near_reps] + [hit]
+                if repname not in store_nearby_reps['R']:
+                    store_nearby_reps['R'][repname] = {}
+                store_nearby_reps['R'][repname][hit[1]] = near_reps
                 for rep in near_reps:
                     # ------------------------------
                     # DISCLAIMER
@@ -325,7 +329,7 @@ def flankclusterer():
                         f"{key1}_{key2}(R):TS:{rightclus[key2[1]]}")
                     continue
                 combval = "\n".join(clusters[key1] + clusters[key2])
-                logstring = f">{key1[0]}_{key1[1]} with {key2[0]}_{key2[1]}\n{combval}"
+                logstring = f">{key1[0]}_{key1[1]} with {key2[0]}_{key2[1]} left\n{combval}"
                 logging_mergers.append(logstring)
                 to_merge.append((key1, key2))
             if key1[1] == key2[1] and key1[1] != -1:
@@ -339,9 +343,13 @@ def flankclusterer():
                         f"{key1}_{key2}(L):TS:{leftclus[key2[0]]}")
                     continue
                 combval = "\n".join(clusters[key1] + clusters[key2])
-                logstring = f">{key1[0]}_{key1[1]} with {key2[0]}_{key2[1]}\n{combval}"
+                logstring = f">{key1[0]}_{key1[1]} with {key2[0]}_{key2[1]} right\n{combval}"
                 logging_mergers.append(logstring)
                 to_merge.append((key1, key2))
+
+    ts_dictionary = {k: v[0] for k, v in clusters.items}
+    pickle.dump(ts_dictionary, open(
+        f"{all_parameters['out']}/ts_dictionary_{todaysdate}.p", "wb"))
 
     merge_graph = nx.Graph()
     merge_graph.add_edges_from(to_merge)

@@ -1,28 +1,4 @@
-For Step 2:
-    Graph 1:
-        (x axis) Plot graph  : for each cluster
-        (y axis) showing     : the average similarity of a flanking sequence
-        Note                 : One graph for left flanking and one for right flanking
-        Data Needed          : on results from BLAST hits
-
-    Graph 2:
-        (x axis) Plot graph  : for each cluster
-        (y axis) showing     : number of flanking sequences that have 2 hits in another genome
-        Example              : If in cluster 2, left flanking sequence of repin from genome A matches with
-                               two sequences in genome B - this is a potential paralog situation. So this is a +1 on the
-                               x-axis under cluster 2 (in y-axis)
-        Note                 : One graph for left flanking and one for right flanking
-        Data Needed          : on results from BLAST hits
-
 For Step 3:
-    Graph 3:
-        (x axis) Plot graph  : for each cluster
-        (y axis) showing     : number of genomes having EGS but lacking REPINs
-        Example              : If either LHS or RHS of a repin from genome A is present in genome B but genome B does
-                               not have a REPIN there, then +1 on x-axis under the corresponding y-axis
-        Note                 : Have this information in the output file
-        Data Needed          : from the stage where I look for closest REPIN
-
     Graph 4:
         (x axis) Plot graph  : for each genome pair
         (y axis) showing     : number of best hits from flanking sequences of one genome that are not reciprocated in the other genome

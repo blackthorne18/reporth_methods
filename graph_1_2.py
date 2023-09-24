@@ -1,3 +1,22 @@
+"""
+Graph 1:
+    (x axis) Plot graph  : for each cluster
+    (y axis) showing     : the average similarity of a flanking sequence
+    Note                 : One graph for left flanking and one for right flanking
+    Data Needed          : on results from BLAST hits
+
+Graph 2:
+    (x axis) Plot graph  : for each cluster
+    (y axis) showing     : number of flanking sequences that have 2 hits in another genome
+    Example              : If in cluster 2, left flanking sequence of repin from genome A matches with
+                           two sequences in genome B - this is a potential paralog situation. So this is a +1 on the
+                           x-axis under cluster 2 (in y-axis)
+    Note                 : One graph for left flanking and one for right flanking
+    Data Needed          : on results from BLAST hits
+Note: The above was the inspiration for the figures, they may have deviated from
+their original descriptions. Refer to the slides
+"""
+
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
