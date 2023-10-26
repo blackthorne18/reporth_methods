@@ -1,3 +1,13 @@
+"""
+Graph 4:
+        (x axis) Plot graph  : for each genome pair
+        (y axis) showing     : number of best hits from flanking sequences of one genome that are not reciprocated in the other genome
+        Example              : With genome X on the x-axis and genome Y on the y-axis, how many times a flanking sequence from
+                               X has a best hit in Y but is not reciprocated
+        Note                 : Have this as a heatmap?
+        Data Needed          : from the stage where I look for closest REPIN
+"""
+
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
@@ -201,8 +211,8 @@ def graph4():
 
 def main():
     read_input()
-    # graph3()
-    graph4()
+    graph3()
+    # graph4()
 
 
 if __name__ == "__main__":

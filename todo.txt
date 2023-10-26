@@ -1,5 +1,5 @@
 For Step 3:
-    Graph 4:
+        Graph 4:
         (x axis) Plot graph  : for each genome pair
         (y axis) showing     : number of best hits from flanking sequences of one genome that are not reciprocated in the other genome
         Example              : With genome X on the x-axis and genome Y on the y-axis, how many times a flanking sequence from
