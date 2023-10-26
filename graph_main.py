@@ -127,6 +127,82 @@ def graph1b():
 
 
 @timethis
+def graph2():
+    cluslen = {}
+    for key, val in clusters.items():
+        gens = [v.split("_")[0] for v in val]
+        gens = [x for x in gens if x != "chlPCL1606"]
+        cluslen[key] = len(list(set(gens)))
+
+    yax = cluslen.values()
+    ybins = range(1, max(yax) + 1)
+    ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+    plt.hist(yax, bins=ybins)
+    plt.xticks(ybins, ybin_alternate, fontsize=14)
+    plt.xlabel("Number of genomes present in a cluster", fontsize=18)
+    plt.ylabel("Number of clusters", fontsize=18)
+    plt.show()
+
+
+@timethis
+def graph3():
+    phylo_gens = ['ChPhzTR38', 'ChPhzS24', 'ChPhzTR18', 'ChPhzTR39', 'PA23', 'ChPhzS23', '66', 'Lzh-T5', 'O6', 'ChPhzTR36', '6698', 'C50', 'P2', '2210', '19603', 'CW2', 'Q16', '464', '449', 'M12', 'StFRB508',
+                  'JD37', 'M71', 'K27', 'Pb-St2', 'B25', 'SLPH10', 'ChPhzS135', 'DTR133', 'ToZa7', 'ChPhzTR44', 'PCL1607', 'PCL1391', 'ChPhzS140', '17809', '17411', 'ZJU60', '21509', '189', '17415', '50083', 'TAMOak81']
+
+    reversekey = {}
+    for item in pathmk:
+        for rep in item[0]:
+            reversekey[rep] = item['path']
+
+    graphs = {'both': {}, 'left': {}, 'right': {}}
+    bygen = {'both': {}, 'left': {}, 'right': {}}
+    for key, val in clusters.items():
+        if len(val) < 2:
+            continue
+        graphs['both'][key] = 0
+        graphs['left'][key] = 0
+        graphs['right'][key] = 0
+        for rep in val:
+            graphs[reversekey[rep]][key] += 1
+            gen = rep.split("_")[0]
+            if gen not in bygen[reversekey[rep]]:
+                bygen[reversekey[rep]][gen] = 0
+            bygen[reversekey[rep]][gen] += 1
+
+    bygen['both'] = {newkey: bygen['both']["chl" + newkey]
+                     for newkey in phylo_gens}
+    bygen['left'] = {newkey: bygen['left']["chl" + newkey]
+                     for newkey in phylo_gens}
+    bygen['right'] = {newkey: bygen['right']["chl" + newkey]
+                      for newkey in phylo_gens}
+
+    gsum = {k: sum(v.values()) for k, v in graphs.items()}
+    gbb = np.array(list(bygen['both'].values()))
+    gbl = np.array(list(bygen['left'].values()))
+    gbr = np.array(list(bygen['right'].values()))
+    lbb = range(len(bygen['both']))
+    gennames = [key for key in bygen['both']]
+
+    plt.subplot(1, 3, 1)
+    plt.bar(range(len(gsum)), gsum.values())
+    plt.xticks(range(len(gsum)), ["Both", "Left", "Right"])
+    plt.ylabel("Number of REPINs")
+    # plt.title("1.A. Left Flanking Sequnce")
+    plt.subplot(1, 3, (2, 3))
+    plt.bar(lbb, gbb, label='Both')
+    plt.bar(lbb, gbl, bottom=gbb, label='Left')
+    plt.bar(lbb, gbr, bottom=gbb + gbl, label='Right')
+    plt.xticks(lbb, gennames, rotation=90)
+    plt.ylabel("Number of REPINs")
+    plt.legend()
+    # plt.title("1.B. Right Flanking Sequnce")
+    plt.suptitle(
+        "REPINs clustered based on both, or one of the flanking sequences")
+    plt.tight_layout()
+    plt.show()
+
+
+@timethis
 def graph4():
     lhs, rhs = {}, {}
     mpara_L = {}
@@ -240,69 +316,12 @@ def graph4():
     # ------------------------------------------------------------
 
 
-@timethis
-def graph3():
-    phylo_gens = ['ChPhzTR38', 'ChPhzS24', 'ChPhzTR18', 'ChPhzTR39', 'PA23', 'ChPhzS23', '66', 'Lzh-T5', 'O6', 'ChPhzTR36', '6698', 'C50', 'P2', '2210', '19603', 'CW2', 'Q16', '464', '449', 'M12', 'StFRB508',
-                  'JD37', 'M71', 'K27', 'Pb-St2', 'B25', 'SLPH10', 'ChPhzS135', 'DTR133', 'ToZa7', 'ChPhzTR44', 'PCL1607', 'PCL1391', 'ChPhzS140', '17809', '17411', 'ZJU60', '21509', '189', '17415', '50083', 'TAMOak81']
-
-    reversekey = {}
-    for item in pathmk:
-        for rep in item[0]:
-            reversekey[rep] = item['path']
-
-    graphs = {'both': {}, 'left': {}, 'right': {}}
-    bygen = {'both': {}, 'left': {}, 'right': {}}
-    for key, val in clusters.items():
-        if len(val) < 2:
-            continue
-        graphs['both'][key] = 0
-        graphs['left'][key] = 0
-        graphs['right'][key] = 0
-        for rep in val:
-            graphs[reversekey[rep]][key] += 1
-            gen = rep.split("_")[0]
-            if gen not in bygen[reversekey[rep]]:
-                bygen[reversekey[rep]][gen] = 0
-            bygen[reversekey[rep]][gen] += 1
-
-    bygen['both'] = {newkey: bygen['both']["chl" + newkey]
-                     for newkey in phylo_gens}
-    bygen['left'] = {newkey: bygen['left']["chl" + newkey]
-                     for newkey in phylo_gens}
-    bygen['right'] = {newkey: bygen['right']["chl" + newkey]
-                      for newkey in phylo_gens}
-
-    gsum = {k: sum(v.values()) for k, v in graphs.items()}
-    gbb = np.array(list(bygen['both'].values()))
-    gbl = np.array(list(bygen['left'].values()))
-    gbr = np.array(list(bygen['right'].values()))
-    lbb = range(len(bygen['both']))
-    gennames = [key for key in bygen['both']]
-
-    plt.subplot(1, 3, 1)
-    plt.bar(range(len(gsum)), gsum.values())
-    plt.xticks(range(len(gsum)), ["Both", "Left", "Right"])
-    plt.ylabel("Number of REPINs")
-    # plt.title("1.A. Left Flanking Sequnce")
-    plt.subplot(1, 3, (2, 3))
-    plt.bar(lbb, gbb, label='Both')
-    plt.bar(lbb, gbl, bottom=gbb, label='Left')
-    plt.bar(lbb, gbr, bottom=gbb + gbl, label='Right')
-    plt.xticks(lbb, gennames, rotation=90)
-    plt.ylabel("Number of REPINs")
-    plt.legend()
-    # plt.title("1.B. Right Flanking Sequnce")
-    plt.suptitle(
-        "REPINs clustered based on both, or one of the flanking sequences")
-    plt.tight_layout()
-    plt.show()
-
-
 def main():
     read_input()
     # graph1b()
+    graph2()
     # graph3()
-    graph4()
+    # graph4()
 
 
 if __name__ == "__main__":
