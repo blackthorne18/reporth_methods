@@ -1,7 +1,8 @@
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
-from prajwaltools import timethis
+import pandas as pd
+# from prajwaltools import timethis
 
 """
 Graph 3:
@@ -14,9 +15,9 @@ Graph 3:
 """
 
 
-@timethis
+# @timethis
 def read_input():
-    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters
+    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols
     lhs_hits = pickle.load(open("./temp/lhs_hits.p", "rb"))
     rhs_hits = pickle.load(open("./temp/rhs_hits.p", "rb"))
     store_nearby_reps = pickle.load(open("./temp/store_nearby_reps.p", "rb"))
@@ -32,12 +33,14 @@ def read_input():
                 except Exception:
                     pass
         clusters = {}
+        clus_cols = {}
         for f in f_read:
             if len(f) <= 1:
                 continue
             if f[0] not in clusters:
                 clusters[f[0]] = []
             clusters[f[0]].append(f"{f[1]}_{f[2]}_{f[3]}")
+            clus_cols[f"{f[1]}_{f[2]}_{f[3]}"] = f[4]
 
     pathmk = []
     with open("./output/cluster_output_Sep20_875/path_making_Sep20.txt") as f:
@@ -52,7 +55,7 @@ def read_input():
                 pathmk[-1][0].append(fread[i].replace(" ", "_"))
 
 
-@timethis
+# @timethis
 def graph1b():
     """
     Note: lhs and rhs are structured as:
@@ -109,42 +112,65 @@ def graph1b():
     #     if lg[key] < 50:
     #         print(key, len(clusters[key]))
     # exit()
-    plt.subplot(121)
-    plt.hist(lg.values(), bins=10)
+
+    plt.hist(lg.values(), bins=10, alpha=0.5, label='L')
+    plt.hist(rg.values(), bins=10, alpha=0.5, label='R')
     plt.xticks(range(90, 102, 2))
+    # plt.hist([list(lg.values()), list(rg.values())], bins=range(
+    #     90, 101), label=['L', 'R'])
+    # plt.xticks(range(90, 101))
+    plt.legend(loc='upper right')
     plt.ylabel("Number of Clusters")
     plt.xlabel("Average similarity")
-    plt.title("1.A. Left Flanking Sequnce")
-    plt.subplot(122)
-    plt.hist(rg.values(), bins=10)
-    plt.xticks(range(90, 102, 2))
-    plt.ylabel("Number of Clusters")
-    plt.xlabel("Average similarity")
-    plt.title("1.B. Right Flanking Sequnce")
-    plt.suptitle(
-        "Average Similarity of Flanking Sequences Within A Cluster")
+    plt.title("Average Similarity of Flanking Sequences Within A Cluster")
     plt.show()
 
+    # plt.subplot(121)
+    # plt.hist(lg.values(), bins=10)
+    # plt.xticks(range(90, 102, 2))
+    # plt.ylabel("Number of Clusters")
+    # plt.xlabel("Average similarity")
+    # plt.title("1.A. Left Flanking Sequnce")
+    # plt.subplot(122)
+    # plt.hist(rg.values(), bins=10)
+    # plt.xticks(range(90, 102, 2))
+    # plt.ylabel("Number of Clusters")
+    # plt.xlabel("Average similarity")
+    # plt.title("1.B. Right Flanking Sequnce")
+    # plt.suptitle(
+    #     "Average Similarity of Flanking Sequences Within A Cluster")
+    # plt.show()
 
-@timethis
+
+# @timethis
 def graph2():
     cluslen = {}
+    types = {x: [] for x in list(set(clus_cols.values()))}
+    allgens = list(set([x.split("_")[0] for x in clus_cols]))
+
     for key, val in clusters.items():
         gens = [v.split("_")[0] for v in val]
         gens = [x for x in gens if x != "chlPCL1606"]
         cluslen[key] = len(list(set(gens)))
+        clus_cols2 = [clus_cols[x] for x in val]
+        for t in types:
+            types[t].append(min(len(allgens), clus_cols2.count(t)))
 
     yax = cluslen.values()
+    yaxs = [types[x] for x in types]
+    labels = [x for x in types]
     ybins = range(1, max(yax) + 1)
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
-    plt.hist(yax, bins=ybins)
+    # plt.hist(yax, bins=ybins)
+    plt.hist(yaxs, bins=ybins, stacked=True, label=labels)
+    plt.legend()
     plt.xticks(ybins, ybin_alternate, fontsize=14)
     plt.xlabel("Number of genomes present in a cluster", fontsize=18)
     plt.ylabel("Number of clusters", fontsize=18)
     plt.show()
 
 
-@timethis
+# @timethis
 def graph3():
     phylo_gens = ['ChPhzTR38', 'ChPhzS24', 'ChPhzTR18', 'ChPhzTR39', 'PA23', 'ChPhzS23', '66', 'Lzh-T5', 'O6', 'ChPhzTR36', '6698', 'C50', 'P2', '2210', '19603', 'CW2', 'Q16', '464', '449', 'M12', 'StFRB508',
                   'JD37', 'M71', 'K27', 'Pb-St2', 'B25', 'SLPH10', 'ChPhzS135', 'DTR133', 'ToZa7', 'ChPhzTR44', 'PCL1607', 'PCL1391', 'ChPhzS140', '17809', '17411', 'ZJU60', '21509', '189', '17415', '50083', 'TAMOak81']
@@ -202,7 +228,7 @@ def graph3():
     plt.show()
 
 
-@timethis
+# @timethis
 def graph4():
     lhs, rhs = {}, {}
     mpara_L = {}
