@@ -15,16 +15,22 @@ Graph 3:
 """
 
 
-# @timethis
-def read_input():
-    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, keeptype
-    lhs_hits = pickle.load(open("./temp/lhs_hits.p", "rb"))
-    rhs_hits = pickle.load(open("./temp/rhs_hits.p", "rb"))
-    store_nearby_reps = pickle.load(open("./temp/store_nearby_reps.p", "rb"))
-    flank_pairwise_dists = pickle.load(
-        open("./temp/flank_pairwise_dists.p", "rb"))
+FILEPATH = "./temp/"
+KEEPTYPE = 'all'
 
-    with open("./output/cluster_output_Sep20_875/clusters_Sep20.txt") as f:
+# @timethis
+
+
+def read_input():
+    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, KEEPTYPE
+    lhs_hits = pickle.load(open(f"{FILEPATH}/lhs_hits.p", "rb"))
+    rhs_hits = pickle.load(open(f"{FILEPATH}/rhs_hits.p", "rb"))
+    store_nearby_reps = pickle.load(
+        open(f"{FILEPATH}/store_nearby_reps.p", "rb"))
+    flank_pairwise_dists = pickle.load(
+        open(f"{FILEPATH}/flank_pairwise_dists.p", "rb"))
+
+    with open(f"{FILEPATH}/cluster_output_Sep20_875/clusters_Sep20.txt") as f:
         f_read = [i.split(" ") for i in f.read().split("\n")]
         for x in range(len(f_read)):
             for y in range(len(f_read[x])):
@@ -45,7 +51,7 @@ def read_input():
             clus_cols[f"{f[1]}_{f[2]}_{f[3]}"] = f[4]
 
     pathmk = []
-    with open("./output/cluster_output_Sep20_875/path_making_Sep20.txt") as f:
+    with open(f"{FILEPATH}/cluster_output_Sep20_875/path_making_Sep20.txt") as f:
         fread = f.read().split("\n")
         for i in range(len(fread)):
             if ">" in fread[i]:
@@ -64,15 +70,14 @@ def read_input():
     # while True:
     #     print(f"The following types of repins exist:{alltypes} or 'all'")
     #     print(f"Which type of REPIN should be included in the dataset for plotting the graphs...")
-    #     keeptype = input().lower()
-    #     if keeptype == 'all' or keeptype in alltypes:
+    #     KEEPTYPE = input().lower()
+    #     if KEEPTYPE == 'all' or KEEPTYPE in alltypes:
     #         break
-    keeptype = 'all'
 
-    if keeptype != 'all':
+    if KEEPTYPE != 'all':
         for key in clusters:
             clusters[key] = [v for v in clusters[key]
-                             if v in repbytype[keeptype]]
+                             if v in repbytype[KEEPTYPE]]
         _types = []
         for key, val in clusters.items():
             for v in val:
@@ -215,7 +220,7 @@ def graph2():
         'type1': 'blue',
         'type2': 'red',
         'all': 'black'
-    }[keeptype]
+    }[KEEPTYPE]
     yax = cluslen.values()
     ybins = range(1, max(yax) + 1)
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
@@ -223,7 +228,7 @@ def graph2():
     plt.xticks(ybins, ybin_alternate, fontsize=14)
     plt.xlabel("Number of genomes present in a cluster", fontsize=18)
     plt.ylabel("Number of clusters", fontsize=18)
-    plt.title(keeptype)
+    plt.title(KEEPTYPE)
     plt.show()
 
 
