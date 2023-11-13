@@ -16,7 +16,9 @@ Graph 3:
 
 
 FILEPATH = "./temp/"
-KEEPTYPE = 'all'
+CLUSTERFILENAME = "/cluster_output_Sep20_875/clusters_Sep20.txt"
+PATHFILENAME = "cluster_output_Sep20_875/path_making_Sep20.txt"
+KEEPTYPE = "all"
 
 # @timethis
 
@@ -30,7 +32,7 @@ def read_input():
     flank_pairwise_dists = pickle.load(
         open(f"{FILEPATH}/flank_pairwise_dists.p", "rb"))
 
-    with open(f"{FILEPATH}/cluster_output_Sep20_875/clusters_Sep20.txt") as f:
+    with open(FILEPATH + CLUSTERFILENAME) as f:
         f_read = [i.split(" ") for i in f.read().split("\n")]
         for x in range(len(f_read)):
             for y in range(len(f_read[x])):
@@ -51,7 +53,7 @@ def read_input():
             clus_cols[f"{f[1]}_{f[2]}_{f[3]}"] = f[4]
 
     pathmk = []
-    with open(f"{FILEPATH}/cluster_output_Sep20_875/path_making_Sep20.txt") as f:
+    with open(FILEPATH + PATHFILENAME) as f:
         fread = f.read().split("\n")
         for i in range(len(fread)):
             if ">" in fread[i]:
