@@ -17,7 +17,7 @@ Graph 3:
 
 # @timethis
 def read_input():
-    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols
+    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, keeptype
     lhs_hits = pickle.load(open("./temp/lhs_hits.p", "rb"))
     rhs_hits = pickle.load(open("./temp/rhs_hits.p", "rb"))
     store_nearby_reps = pickle.load(open("./temp/store_nearby_reps.p", "rb"))
@@ -39,6 +39,8 @@ def read_input():
                 continue
             if f[0] not in clusters:
                 clusters[f[0]] = []
+            if f[1] == 'chlPCL1606':
+                continue
             clusters[f[0]].append(f"{f[1]}_{f[2]}_{f[3]}")
             clus_cols[f"{f[1]}_{f[2]}_{f[3]}"] = f[4]
 
@@ -53,6 +55,28 @@ def read_input():
                 pathmk[-1]['path'] = bob[-1]
             else:
                 pathmk[-1][0].append(fread[i].replace(" ", "_"))
+
+    alltypes = list(set(clus_cols.values()))
+    repbytype = {t: [] for t in alltypes}
+    for k, v in clus_cols.items():
+        repbytype[v].append(k)
+
+    # while True:
+    #     print(f"The following types of repins exist:{alltypes} or 'all'")
+    #     print(f"Which type of REPIN should be included in the dataset for plotting the graphs...")
+    #     keeptype = input().lower()
+    #     if keeptype == 'all' or keeptype in alltypes:
+    #         break
+    keeptype = 'all'
+
+    if keeptype != 'all':
+        for key in clusters:
+            clusters[key] = [v for v in clusters[key]
+                             if v in repbytype[keeptype]]
+        _types = []
+        for key, val in clusters.items():
+            for v in val:
+                _types.append(clus_cols[v])
 
 
 # @timethis
@@ -113,8 +137,9 @@ def graph1b():
     #         print(key, len(clusters[key]))
     # exit()
 
-    plt.hist(lg.values(), bins=10, alpha=0.5, label='L')
-    plt.hist(rg.values(), bins=10, alpha=0.5, label='R')
+    bins = range(90, 101)
+    plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
+    plt.hist(rg.values(), bins=bins, alpha=0.5, label='R')
     plt.xticks(range(90, 102, 2))
     # plt.hist([list(lg.values()), list(rg.values())], bins=range(
     #     90, 101), label=['L', 'R'])
@@ -143,10 +168,16 @@ def graph1b():
 
 
 # @timethis
-def graph2():
+def graph2_all_types_stacked():
     cluslen = {}
     types = {x: [] for x in list(set(clus_cols.values()))}
     allgens = list(set([x.split("_")[0] for x in clus_cols]))
+    colorguide = {
+        'type0': 'green',
+        'type1': 'blue',
+        'type2': 'red',
+        'all': 'black'
+    }
 
     for key, val in clusters.items():
         gens = [v.split("_")[0] for v in val]
@@ -161,12 +192,38 @@ def graph2():
     labels = [x for x in types]
     ybins = range(1, max(yax) + 1)
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+
     # plt.hist(yax, bins=ybins)
     plt.hist(yaxs, bins=ybins, stacked=True, label=labels)
     plt.legend()
     plt.xticks(ybins, ybin_alternate, fontsize=14)
     plt.xlabel("Number of genomes present in a cluster", fontsize=18)
     plt.ylabel("Number of clusters", fontsize=18)
+    plt.show()
+
+# @timethis
+
+
+def graph2():
+    cluslen = {}
+    for key, val in clusters.items():
+        gens = [v.split("_")[0] for v in val]
+        cluslen[key] = len(list(set(gens)))
+
+    colorguide = {
+        'type0': 'green',
+        'type1': 'blue',
+        'type2': 'red',
+        'all': 'black'
+    }[keeptype]
+    yax = cluslen.values()
+    ybins = range(1, max(yax) + 1)
+    ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+    plt.hist(yax, bins=ybins, color=colorguide)
+    plt.xticks(ybins, ybin_alternate, fontsize=14)
+    plt.xlabel("Number of genomes present in a cluster", fontsize=18)
+    plt.ylabel("Number of clusters", fontsize=18)
+    plt.title(keeptype)
     plt.show()
 
 
@@ -289,31 +346,43 @@ def graph4():
     clus_graph['R'] = {key: val for key,
                        val in clus_graph['R'].items() if val > 0}
 
-    cgticks_L = [str(x) for x in list(clus_graph['L'].keys())]
-    cgticks_R = [str(x) for x in list(clus_graph['R'].keys())]
-
-    clussize_L = [len(clusters[key]) for key in clus_graph['L']]
-    clussize_R = [len(clusters[key]) for key in clus_graph['R']]
-
-    plt.subplot(121)
-    plt.bar(range(len(cgticks_L)), clus_graph['L'].values())
-    plt.scatter(range(len(cgticks_L)), clussize_L, color='red')
-    plt.xticks(range(len(cgticks_L)), cgticks_L, rotation=60)
+    clus_graph['both'] = clus_graph['L'] | clus_graph['R']
+    cgticks = [str(x) for x in list(clus_graph['both'].keys())]
+    clussize = [len(clusters[key]) for key in clus_graph['both']]
+    plt.bar(range(len(cgticks)), clus_graph['both'].values())
+    plt.scatter(range(len(cgticks)), clussize, color='red')
+    plt.xticks(range(len(cgticks)), cgticks, rotation=60)
     plt.yticks(range(30))
     plt.ylabel("Number of genomes")
     plt.xlabel("Cluster Number")
-    plt.title("1.A. Left Flanking Sequnce")
-    plt.subplot(122)
-    plt.bar(range(len(cgticks_R)), clus_graph['R'].values())
-    plt.scatter(range(len(cgticks_R)), clussize_R, color='red')
-    plt.xticks(range(len(cgticks_R)), cgticks_R, rotation=60)
-    plt.yticks(range(30))
-    plt.ylabel("Number of genomes")
-    plt.xlabel("Cluster Number")
-    plt.title("1.B. Right Flanking Sequnce")
-    plt.suptitle(
-        "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
+    # plt.title(
+    #     "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
     plt.show()
+
+    # cgticks_L = [str(x) for x in list(clus_graph['L'].keys())]
+    # cgticks_R = [str(x) for x in list(clus_graph['R'].keys())]
+
+    # clussize_L = [len(clusters[key]) for key in clus_graph['L']]
+    # clussize_R = [len(clusters[key]) for key in clus_graph['R']]
+    # plt.subplot(121)
+    # plt.bar(range(len(cgticks_L)), clus_graph['L'].values())
+    # plt.scatter(range(len(cgticks_L)), clussize_L, color='red')
+    # plt.xticks(range(len(cgticks_L)), cgticks_L, rotation=60)
+    # plt.yticks(range(30))
+    # plt.ylabel("Number of genomes")
+    # plt.xlabel("Cluster Number")
+    # plt.title("1.A. Left Flanking Sequnce")
+    # plt.subplot(122)
+    # plt.bar(range(len(cgticks_R)), clus_graph['R'].values())
+    # plt.scatter(range(len(cgticks_R)), clussize_R, color='red')
+    # plt.xticks(range(len(cgticks_R)), cgticks_R, rotation=60)
+    # plt.yticks(range(30))
+    # plt.ylabel("Number of genomes")
+    # plt.xlabel("Cluster Number")
+    # plt.title("1.B. Right Flanking Sequnce")
+    # plt.suptitle(
+    #     "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
+    # plt.show()
     # ------------------------------------------------------------
 
     # ------------------------------------------------------------
@@ -346,6 +415,7 @@ def main():
     read_input()
     # graph1b()
     graph2()
+    # graph2_all_types_stacked()
     # graph3()
     # graph4()
 

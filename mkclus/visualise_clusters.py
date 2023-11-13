@@ -280,27 +280,20 @@ def summary_plots(summary_types, outpath, toprint):
     rightbins = np.arange(unique_right + 1) - 0.5
     percent_bins = np.arange(0, 110, 10)
 
-    plt.subplot(1, 2, 1)
     if summary_types == 2:
-        plt.hist(left, percent_bins)
+        # plt.hist(left, percent_bins, alpha=0.5, label='L')
+        # plt.hist(right, percent_bins, alpha=0.5, label='R')
+        plt.hist([left, right], percent_bins, label=['L', 'R'])
         plt.xticks(percent_bins)
     else:
-        plt.hist(left, leftbins, density=True)
+        # plt.hist(left, leftbins, density=True, alpha=0.5, label='L')
+        # plt.hist(right, rightbins, density=True, alpha=0.5, label='R')
+        plt.hist([left, right], leftbins, density=True, label=['L', 'R'])
         plt.xticks(range(unique_left))
-    plt.title("Left Flanking Sequnce")
-    plt.xlabel(x_lab)
-    plt.ylabel("Number of occurrences")
 
-    plt.subplot(1, 2, 2)
-    if summary_types == 2:
-        plt.hist(right, percent_bins)
-        plt.xticks(percent_bins)
-    else:
-        plt.hist(right, rightbins, density=True)
-        plt.xticks(range(unique_right))
-    plt.title("Right Flanking Sequnce")
     plt.xlabel(x_lab)
     plt.ylabel("Number of occurrences")
+    plt.legend(loc='upper left')
 
     plt.tight_layout()
     if toprint:
