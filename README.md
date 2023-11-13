@@ -15,20 +15,20 @@ Note: The <METAFILE_NAME> is the file in `output/cluster_output_Sep20_875/meta_c
 
 ### 1. You want to look at the Network of connections between REPIN flanking sequences of a particular cluster?
 
-python3 output_graphs.py --file <METAFILE_NAME> --cluster <CLUSTER_NUMBER>
+`python3 output_graphs.py --file <METAFILE_NAME> --cluster <CLUSTER_NUMBER>`
 
 ### 2. If you want to look at histogram summary of the Quantification of Connectivity of Flanking Sequences of each and every cluster?
 #### a. Based on Number of Cliques
 
-python3 output_graphs.py --file <METAFILE_NAME> --summary 0 --summary_types 1
+`python3 output_graphs.py --file <METAFILE_NAME> --summary 0 --summary_types 1`
 
 #### b. Based on Number of Connectivity
 
-python3 output_graphs.py --file <METAFILE_NAME> --summary 0 --summary_types 1
+`python3 output_graphs.py --file <METAFILE_NAME> --summary 0 --summary_types 1`
 
 #### Summary for each cluster, rather than a histogram distribution
 
-python3 output_graphs.py --file <METAFILE_NAME> --summary 1 --summary_types <0_or_1>
+`python3 output_graphs.py --file <METAFILE_NAME> --summary 1 --summary_types <0_or_1>`
 
 ### Caching
 Once the program has been run, a directory is created where the temporary files are stored, making it faster to rerun the code for the same dataset. 
