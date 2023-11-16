@@ -1,3 +1,6 @@
+## Visualising Clusters on the Phylogenetic Tree
+Run `visualise_clusters.r` to visualise REPINs found in a particular cluster on the phylogenetic tree of the 42 genomes. The variable `whichclus` is responsible for identifying the cluster number that you want to visualise.
+
 ## What is runtest?
 Runs the clustering algorithm on the input file. Note this is a local instance of the clustering algorithm
 
