@@ -24,7 +24,7 @@ KEEPTYPE = "all"
 
 
 def read_input():
-    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, KEEPTYPE
+    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, KEEPTYPE, alltypes
     lhs_hits = pickle.load(open(f"{FILEPATH}/lhs_hits.p", "rb"))
     rhs_hits = pickle.load(open(f"{FILEPATH}/rhs_hits.p", "rb"))
     store_nearby_reps = pickle.load(
@@ -423,13 +423,41 @@ def graph4():
     # ------------------------------------------------------------
 
 
+def graph5():
+    fullset = {}
+    for key, val in clusters.items():
+        gen = [v.split("_")[0] for v in val]
+        if len(set(gen)) >= 42:
+            fullset[key] = val
+
+    # Color distribution
+    cold = {a: 0 for a in alltypes}
+    cold['mix'] = 0
+    doublecols = []
+    for key, val in fullset.items():
+        cols = [clus_cols[v] for v in val]
+        if len(set(cols)) == 1:
+            cold[cols[0]] += 1
+        else:
+            cold['mix'] += 1
+            doublecols.append(tuple(set(cols)))
+        if len(set(cols)) == 3:
+            print(key)
+    print(cold, sum(cold.values()))
+    _uk = {d: 0 for d in doublecols}
+    _uk = {d: doublecols.count(d) for d in _uk}
+    print(_uk)
+    print(doublecols)
+
+
 def main():
     read_input()
-    graph1b()
+    # graph1b()
     # graph2()
     # graph2_all_types_stacked()
     # graph3()
     # graph4()
+    graph5()
 
 
 if __name__ == "__main__":
