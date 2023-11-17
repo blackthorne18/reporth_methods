@@ -6,6 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import random
+from pathlib import Path
 import numpy as np
 from matplotlib.widgets import Slider
 from math import comb
@@ -304,14 +305,16 @@ def summary_plots(summary_types):
 @click.option('--file', prompt='Please Input REPIN Cluster Meta File')
 @click.option('--cluster', default=-1, help="Choose cluster number to display connected graphs")
 @click.option('--summary', default=0, help="Choose '0' for Histogram summary or '1' for detailed line plot summary")
-@click.option('--summary_types', default=1, help="Choose '1' for Clique based and '2' for Percentage Connections based summary")
+@click.option('--summary_types', default=2, help="Choose '1' for Clique based and '2' for Percentage Connections based summary")
 @click.option('--recache', default=0, help="If set to 1, removes cache, and reruns the program")
 def main(file, cluster, summary, summary_types, recache):
     global infile_name, outdir, CACHE
     if not os.path.isfile(file):
         exit("File not provided or does not exist. Exited.")
     infile_name = file
-    outdir = f"./temp/dat_{infile_name.split('.')[0]}/"
+
+    FILENAME = Path(infile_name).stem
+    outdir = f"./temp/dat_{FILENAME}/"
 
     CACHE = not recache
 

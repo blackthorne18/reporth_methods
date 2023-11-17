@@ -145,8 +145,10 @@ def graph1b():
     # exit()
 
     bins = range(90, 101)
-    plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
-    plt.hist(rg.values(), bins=bins, alpha=0.5, label='R')
+    either = list(lg.values()) + list(rg.values())
+    plt.hist(either, bins=bins)
+    # plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
+    # plt.hist(rg.values(), bins=bins, alpha=0.5, label='R')
     plt.xticks(range(90, 102, 2))
     # plt.hist([list(lg.values()), list(rg.values())], bins=range(
     #     90, 101), label=['L', 'R'])
@@ -270,18 +272,21 @@ def graph3():
     gbb = np.array(list(bygen['both'].values()))
     gbl = np.array(list(bygen['left'].values()))
     gbr = np.array(list(bygen['right'].values()))
+    gbe = gbl + gbr
     lbb = range(len(bygen['both']))
     gennames = [key for key in bygen['both']]
+    gsum['either'] = gsum['left'] + gsum['right']
+    del gsum['left']
+    del gsum['right']
 
     plt.subplot(1, 3, 1)
     plt.bar(range(len(gsum)), gsum.values())
-    plt.xticks(range(len(gsum)), ["Both", "Left", "Right"])
+    plt.xticks(range(len(gsum)), ["Both", "Either"])
     plt.ylabel("Number of REPINs")
     # plt.title("1.A. Left Flanking Sequnce")
     plt.subplot(1, 3, (2, 3))
     plt.bar(lbb, gbb, label='Both')
-    plt.bar(lbb, gbl, bottom=gbb, label='Left')
-    plt.bar(lbb, gbr, bottom=gbb + gbl, label='Right')
+    plt.bar(lbb, gbe, bottom=gbb, label='Either')
     plt.xticks(lbb, gennames, rotation=90)
     plt.ylabel("Number of REPINs")
     plt.legend()
@@ -420,8 +425,8 @@ def graph4():
 
 def main():
     read_input()
-    # graph1b()
-    graph2()
+    graph1b()
+    # graph2()
     # graph2_all_types_stacked()
     # graph3()
     # graph4()
