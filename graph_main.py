@@ -4,27 +4,17 @@ import matplotlib.pyplot as plt
 import pandas as pd
 # from prajwaltools import timethis
 
-"""
-Graph 3:
-    (x axis) Plot graph  : for each cluster
-    (y axis) showing     : How many REPINs are included because both flanking sequences match, and how many for LHS, RHS
-    Example              : In a cluster of six REPINs, say A,B,C are grouped because both flanks match, then D because LHS
-                           matches and E and F because RHSs match. Then the stacked bar graph would have 3, 1, 2 stacked
-    Note                 : Also show as percentage or one graph for each type of stacking
-    Data Needed          : post BLAST clustering stage
-"""
-
 
 FILEPATH = "./temp/"
 CLUSTERFILENAME = "/cluster_output_Sep20_875/clusters_Sep20.txt"
 PATHFILENAME = "cluster_output_Sep20_875/path_making_Sep20.txt"
 KEEPTYPE = "all"
-
+IGNOREDGENOMES = ['chlPCL1606']
 # @timethis
 
 
 def read_input():
-    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, KEEPTYPE, alltypes
+    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, KEEPTYPE, alltypes, genomenames
     lhs_hits = pickle.load(open(f"{FILEPATH}/lhs_hits.p", "rb"))
     rhs_hits = pickle.load(open(f"{FILEPATH}/rhs_hits.p", "rb"))
     store_nearby_reps = pickle.load(
@@ -65,6 +55,7 @@ def read_input():
                 pathmk[-1][0].append(fread[i].replace(" ", "_"))
 
     alltypes = list(set(clus_cols.values()))
+    genomenames = list(set([v.split("_")[0] for v in clus_cols]))
     repbytype = {t: [] for t in alltypes}
     for k, v in clus_cols.items():
         repbytype[v].append(k)
@@ -158,22 +149,6 @@ def graph1b():
     plt.xlabel("Average similarity")
     plt.title("Average Similarity of Flanking Sequences Within A Cluster")
     plt.show()
-
-    # plt.subplot(121)
-    # plt.hist(lg.values(), bins=10)
-    # plt.xticks(range(90, 102, 2))
-    # plt.ylabel("Number of Clusters")
-    # plt.xlabel("Average similarity")
-    # plt.title("1.A. Left Flanking Sequnce")
-    # plt.subplot(122)
-    # plt.hist(rg.values(), bins=10)
-    # plt.xticks(range(90, 102, 2))
-    # plt.ylabel("Number of Clusters")
-    # plt.xlabel("Average similarity")
-    # plt.title("1.B. Right Flanking Sequnce")
-    # plt.suptitle(
-    #     "Average Similarity of Flanking Sequences Within A Cluster")
-    # plt.show()
 
 
 # @timethis
@@ -450,6 +425,73 @@ def graph5():
     print(doublecols)
 
 
+def graph6():
+    # The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome.
+    oneset = {}
+    reversekey = {}
+    EGS_THRESHOLD = 700
+
+    for key, val in clusters.items():
+        gen = [v.split("_")[0] for v in val]
+        if len(set(gen)) > 1:
+            continue
+        # Only looking at clusters of size 1
+        if len(val) == 0:
+            continue
+        oneset[key] = val[0]
+        reversekey[val[0]] = key
+
+    egs_exists_check = {key: {gen: {'left': None, 'right': None}
+                              for gen in genomenames} for key in oneset}
+
+    for key, val in lhs_hits.items():
+        if key not in oneset.values():
+            continue
+        clusnum = reversekey[key]
+        for item in val:
+            if item[1] in IGNOREDGENOMES:
+                continue
+            egs_exists_check[clusnum][item[1]]['left'] = [item[4], item[5]]
+    for key, val in rhs_hits.items():
+        if key not in oneset.values():
+            continue
+        clusnum = reversekey[key]
+        for item in val:
+            if item[1] in IGNOREDGENOMES:
+                continue
+            egs_exists_check[clusnum][item[1]]['right'] = [item[4], item[5]]
+
+    egs_exists = {key: [0] for key in oneset}
+    for key, val in egs_exists_check.items():
+        confirm = []
+        # print(key)
+        for gen, item in val.items():
+            # print(gen, item)
+            if item['left'] is None or item['right'] is None:
+                continue
+            d1 = abs(item['left'][0] - item['right'][0])
+            d2 = abs(item['left'][1] - item['right'][0])
+            d3 = abs(item['left'][0] - item['right'][1])
+            d4 = abs(item['left'][1] - item['right'][1])
+            diff = min(d1, d2, d3, d4)
+            if diff <= EGS_THRESHOLD:
+                confirm.append(gen)
+        egs_exists[key] = list(set(confirm))
+        # exit()
+
+    egs_exists = {k: len(v) for k, v in egs_exists.items()}
+    yax = list(egs_exists.values())
+    ybins = range(1, max(yax) + 1)
+    ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+    plt.hist(yax, bins=ybins)
+    plt.xticks(ybins, ybin_alternate, fontsize=14)
+    plt.xlabel(
+        "Number of genomes that contain the given extragenic space", fontsize=18)
+    plt.ylabel("Number of clusters", fontsize=18)
+    plt.title("The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome")
+    plt.show()
+
+
 def main():
     read_input()
     # graph1b()
@@ -457,7 +499,8 @@ def main():
     # graph2_all_types_stacked()
     # graph3()
     # graph4()
-    graph5()
+    # graph5()
+    graph6()
 
 
 if __name__ == "__main__":
