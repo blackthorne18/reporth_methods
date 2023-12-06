@@ -8,7 +8,7 @@ import pandas as pd
 FILEPATH = "./temp/"
 CLUSTERFILENAME = "/cluster_output_Sep20_875/clusters_Sep20.txt"
 PATHFILENAME = "cluster_output_Sep20_875/path_making_Sep20.txt"
-KEEPTYPE = "all"
+KEEPTYPE = "type2"
 IGNOREDGENOMES = ['chlPCL1606']
 # @timethis
 
@@ -137,6 +137,7 @@ def graph1b():
 
     bins = range(90, 101)
     either = list(lg.values()) + list(rg.values())
+    fig, ax = plt.subplots()
     plt.hist(either, bins=bins)
     # plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
     # plt.hist(rg.values(), bins=bins, alpha=0.5, label='R')
@@ -144,10 +145,12 @@ def graph1b():
     # plt.hist([list(lg.values()), list(rg.values())], bins=range(
     #     90, 101), label=['L', 'R'])
     # plt.xticks(range(90, 101))
-    plt.legend(loc='upper right')
+    # plt.legend(loc='upper right')
     plt.ylabel("Number of Clusters")
     plt.xlabel("Average similarity")
-    plt.title("Average Similarity of Flanking Sequences Within A Cluster")
+    # plt.title("Average Similarity of Flanking Sequences Within A Cluster")
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     plt.show()
 
 
@@ -203,11 +206,14 @@ def graph2():
     yax = cluslen.values()
     ybins = range(1, max(yax) + 1)
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+    fig, ax = plt.subplots()
     plt.hist(yax, bins=ybins, color=colorguide)
     plt.xticks(ybins, ybin_alternate, fontsize=14)
     plt.xlabel("Number of genomes present in a cluster", fontsize=18)
     plt.ylabel("Number of clusters", fontsize=18)
     plt.title(KEEPTYPE)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     plt.show()
 
 
@@ -257,17 +263,17 @@ def graph3():
     plt.subplot(1, 3, 1)
     plt.bar(range(len(gsum)), gsum.values())
     plt.xticks(range(len(gsum)), ["Both", "Either"])
-    plt.ylabel("Number of REPINs")
+    plt.ylabel("Number of REPINs", fontsize = 14)
     # plt.title("1.A. Left Flanking Sequnce")
     plt.subplot(1, 3, (2, 3))
     plt.bar(lbb, gbb, label='Both')
     plt.bar(lbb, gbe, bottom=gbb, label='Either')
     plt.xticks(lbb, gennames, rotation=90)
-    plt.ylabel("Number of REPINs")
+    plt.ylabel("Number of REPINs", fontsize = 14)
     plt.legend()
     # plt.title("1.B. Right Flanking Sequnce")
-    plt.suptitle(
-        "REPINs clustered based on both, or one of the flanking sequences")
+    # plt.suptitle(
+    #     "REPINs clustered based on both, or one of the flanking sequences")
     plt.tight_layout()
     plt.show()
 
@@ -336,14 +342,18 @@ def graph4():
     clus_graph['both'] = clus_graph['L'] | clus_graph['R']
     cgticks = [str(x) for x in list(clus_graph['both'].keys())]
     clussize = [len(clusters[key]) for key in clus_graph['both']]
+    fig, ax = plt.subplots()
     plt.bar(range(len(cgticks)), clus_graph['both'].values())
     plt.scatter(range(len(cgticks)), clussize, color='red')
     plt.xticks(range(len(cgticks)), cgticks, rotation=60)
     plt.yticks(range(30))
-    plt.ylabel("Number of genomes")
-    plt.xlabel("Cluster Number")
+    plt.ylabel("Number of genomes", fontsize=14)
+    plt.xlabel("Cluster Number", fontsize=14)
+
     # plt.title(
     #     "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     plt.show()
 
     # cgticks_L = [str(x) for x in list(clus_graph['L'].keys())]
@@ -483,12 +493,16 @@ def graph6():
     yax = list(egs_exists.values())
     ybins = range(1, max(yax) + 1)
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+
+    fig, ax = plt.subplots()
     plt.hist(yax, bins=ybins)
     plt.xticks(ybins, ybin_alternate, fontsize=14)
     plt.xlabel(
         "Number of genomes that contain the given extragenic space", fontsize=18)
     plt.ylabel("Number of clusters", fontsize=18)
-    plt.title("The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome")
+    # plt.title("The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome")
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     plt.show()
 
 
@@ -497,10 +511,10 @@ def main():
     # graph1b()
     # graph2()
     # graph2_all_types_stacked()
-    # graph3()
-    # graph4()
+     #graph3()
+    graph4()
     # graph5()
-    graph6()
+    # graph6()
 
 
 if __name__ == "__main__":
