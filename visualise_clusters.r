@@ -15,12 +15,6 @@ colnames(clusters) <- c('cluster', 'genome', 'start', 'end', 'color', 'seq')
 clusters <- clusters[c('cluster', 'genome', 'color')]
 clusters <- clusters[clusters$cluster %in% fortytwo, ]
 clusters$genome <- gsub('chl', '', clusters$genome)
-# IMPORTANT NOTE
-# THE CURRENT NEWICK FILE DOES NOT HAVE GENOMES STFRB508 AND 06. THIS WILL
-# CAUSE ERRORS SINCE THE REPINS DATASET HAS IT BUT THE TREE DOES NOT
-clusters <- clusters[clusters$genome != 'StFRB508', ]
-clusters <- clusters[clusters$genome != 'O6', ]
-clusters <- clusters[clusters$genome != 'PCL1606', ]
 clusters$cluster <- as.factor(clusters$cluster)
 
 # Testing cases where there are multiple REPINs of the same type in a cluster
@@ -36,10 +30,10 @@ rayttree <- read.csv('./input/rayts.csv', sep=',')
 # ---------------------------------------------------------------------------------------------------------
 xv <- 55
 plot1 <- ggtree(tree, branch.length = 'none')  +
-  geom_tiplab(align=TRUE, linesize=.5) + xlim(0, xv) + 
+  geom_tiplab(align=TRUE, linesize=.5, size=6) + xlim(0, xv) + 
   geom_fruit(data=rayttree,geom=geom_tile,
              mapping = aes(y=genome, x=Color, fill=rayt),
-             pwidth=0.1, offset=0.25) +
+             pwidth=0.1, offset=0.35) +
   geom_treescale()
 
 #fortytwo=c(924, 936, 952)
@@ -85,7 +79,8 @@ color_values <- c("type0"="green4", "type0_1"="green4", "type0_2"="green",
                   "type2"="steelblue", "type2_1"="steelblue", "type2_2"="blue4")
 
 plot1+scale_fill_manual(values=color_values)  + 
-  vexpand(0.04)
+  vexpand(0.04) +
+  theme(text = element_text(family = "DejaVu Sans"))
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
