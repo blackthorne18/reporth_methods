@@ -196,7 +196,7 @@ def draw_connecting_graphs(cnum):
     ax2 = plt.subplot(gs[1, :])
 
     plt.axes(ax0)
-    plt.title("Left Flanking Region")
+    plt.title("Left flanking region")
     # nx.draw_circular(G1, edgelist=edges1, edge_color=weights1, with_labels=True, edge_cmap=plt.cm.cool)
     pos1 = nx.spring_layout(G1)
     nx.draw_networkx(G1, pos1, edgelist=edges1, edge_color=weights1,
@@ -212,7 +212,7 @@ def draw_connecting_graphs(cnum):
     plt.axis('off')
 
     plt.axes(ax1)
-    plt.title("Right Flanking Region")
+    plt.title("Right flanking region")
     # nx.draw_circular(G2, edgelist=edges2, edge_color=weights2, with_labels=True, edge_cmap=plt.cm.cool)
     pos2 = nx.spring_layout(G2)
     nx.draw_networkx(G2, pos2, edgelist=edges2, edge_color=weights2,

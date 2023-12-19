@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import collections
 # from prajwaltools import timethis
 
 
@@ -144,7 +145,7 @@ def graph3():
     bins = range(90, 101)
     either = list(lg.values()) + list(rg.values())
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
-    plt.hist(either, bins=bins)
+    plt.hist(either, bins=bins, color='black')
     # plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
     # plt.hist(rg.values(), bins=bins, alpha=0.5, label='R')
     plt.xticks(range(90, 102, 2))
@@ -152,7 +153,7 @@ def graph3():
     #     90, 101), label=['L', 'R'])
     # plt.xticks(range(90, 101))
     # plt.legend(loc='upper right')
-    plt.ylabel("Number of Clusters", fontsize=LABELFONTSIZE)
+    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
     plt.xlabel("Average similarity", fontsize=LABELFONTSIZE)
     # plt.title("Average Similarity of Flanking Sequences Within A Cluster")
     ax.spines['top'].set_visible(False)
@@ -203,9 +204,9 @@ def graph2():
         cluslen[key] = len(list(set(gens)))
 
     colorguide = {
-        'type0': '#008600',
-        'type1': '#4c6eaf',
-        'type2': '#7c130a',
+        'type0': '#008b00',
+        'type1': '#4682b4',
+        'type2': '#8b0000',
         'all': 'black'
     }[KEEPTYPE]
     yax = cluslen.values()
@@ -220,7 +221,7 @@ def graph2():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     # plt.show()
-    plt.savefig(FIGLOCATION + 'graph2.pdf', dpi=500, format='pdf')
+    plt.savefig(FIGLOCATION + f'graph2_{KEEPTYPE}.pdf', dpi=500, format='pdf')
 
 
 # @timethis
@@ -272,13 +273,13 @@ def graph4():
 
     plt.figure(figsize=(20, 12))
     plt.subplot(1, 3, 1)
-    plt.bar(range(len(gsum)), gsum.values())
+    plt.bar(range(len(gsum)), gsum.values(), color=['black', 'gray'])
     plt.xticks(range(len(gsum)), ["Both", "Either"])
     plt.ylabel("Number of REPINs", fontsize = LABELFONTSIZE)
     # plt.title("1.A. Left Flanking Sequnce")
     plt.subplot(1, 3, (2, 3))
-    plt.bar(lbb, gbb, label='Both')
-    plt.bar(lbb, gbe, bottom=gbb, label='Either', color=COLOR2)
+    plt.bar(lbb, gbb, label='Both', color='black')
+    plt.bar(lbb, gbe, bottom=gbb, label='Either', color='gray')
     plt.xticks(lbb, gennames, rotation=90)
     plt.ylabel("Number of REPINs", fontsize = LABELFONTSIZE)
     plt.legend()
@@ -352,16 +353,26 @@ def graph5():
                        val in clus_graph['R'].items() if val > 0}
 
     clus_graph['both'] = clus_graph['L'] | clus_graph['R']
+
+    clus_graph['both'] = dict(collections.OrderedDict(sorted(clus_graph['both'].items())))
+
     cgticks = [str(x) for x in list(clus_graph['both'].keys())]
-    clussize = [len(clusters[key]) for key in clus_graph['both']]
+    clussize = {key: len(clusters[key]) for key in clus_graph['both']}
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
-    plt.bar(range(len(cgticks)), clus_graph['both'].values())
-    plt.scatter(range(len(cgticks)), clussize, color='red')
-    plt.xticks(range(len(cgticks)), cgticks, rotation=60)
+    # Sorting dataset by cluster size
+    clussize = dict(sorted(clussize.items(), key=lambda item: item[1]))
+    cgboth = sorted(clus_graph['both'].items(), key=lambda pair: list(clussize.keys()).index(pair[0]))
+    cgboth = {x[0]:x[1] for x in cgboth}
+
+    plt.bar(range(len(cgticks)), clussize.values(), color='gray', label='Cluster size')
+    plt.bar(range(len(cgticks)), cgboth.values(), color='black', label='Potential paralogs')
+    # plt.scatter(range(len(cgticks)), clussize, color='red')
+    plt.xticks(range(len(cgticks)), cgboth.keys(), rotation=60)
     yticks = [str(x) if x%2==0 else '' for x in range(30)]
     plt.yticks(range(len(yticks)), yticks)
     plt.ylabel("Number of genomes", fontsize=LABELFONTSIZE)
-    plt.xlabel("Cluster Number", fontsize=LABELFONTSIZE)
+    plt.xlabel("Cluster number", fontsize=LABELFONTSIZE)
+    plt.legend()
     plt.tight_layout()
     # plt.title(
     #     "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
@@ -509,7 +520,7 @@ def graph6():
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
 
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
-    plt.hist(yax, bins=ybins)
+    plt.hist(yax, bins=ybins, color='black')
     plt.xticks(ybins, ybin_alternate)
     plt.yticks(range(0, 100, 10))
     plt.xlabel(
@@ -528,10 +539,9 @@ def main():
     read_input()
 
     # Primary Functions
-    # graph1b()
-    # graph2()
+    graph2()
     # graph3()
-    graph4()
+    # graph5()
     # graph6()
 
     # Secondary Functions
