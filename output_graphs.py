@@ -14,7 +14,12 @@ from math import comb
 
 ISOLATION_LIMIT = 0.9
 CACHE = True
-
+FIGLOCATION = './temp/images/'
+LABELFONTSIZE = 16
+# ALL X-TICKS ARE FONT-SIZE 20. THIS PLOT DOES NOT HAVE X-TICKS,
+# SO THE DEFAULT IS SET TO LABELSIZE
+plt.rcParams.update({'font.size': LABELFONTSIZE})
+FIGUREDIMENSION = (12, 8)
 
 def make_network(cnum):
     node_color1, node_color2 = [], []
@@ -65,10 +70,11 @@ def make_network(cnum):
 
 
 def process():
-    global infile_name, outdir, infile, clusters, matrix_tags, just_pairs, unique_ids, isolates, cliques, connects
+    global infile_name, outdir, infile, clusters, matrix_tags, just_pairs, unique_ids, isolates, cliques, connects, genomenames
 
     if os.path.isdir(outdir) and CACHE:
         clusters = pickle.load(open(outdir + "clusters", "rb"))
+        genomenames = list(set([y.split(' ')[0] for val in clusters.values() for y in val]))
         matrix_tags = pickle.load(open(outdir + "matrix_tags", "rb"))
         just_pairs = pickle.load(open(outdir + "just_pairs", "rb"))
         unique_ids = pickle.load(open(outdir + "unique_ids", "rb"))
@@ -172,17 +178,30 @@ def draw_connecting_graphs(cnum):
     G1, edges1, weights1, node_color1 = xo1
     G2, edges2, weights2, node_color2 = xo2
 
+    # -----------------------------------------------------------------------------
+    # Removing the 'chl' prefix from genome names
+    allnodes = [y for x in edges1 for y in x] + [y for x in edges2 for y in x]
+    allnodes = {x: x.replace('chl', '') for x in list(set(allnodes))}
+
+    G1 = nx.relabel_nodes(G1, allnodes)
+    G2 = nx.relabel_nodes(G2, allnodes)
+    edges1 = [(x[0].replace('chl', ''), x[1].replace('chl', '')) for x in edges1]
+    edges2 = [(x[0].replace('chl', ''), x[1].replace('chl', '')) for x in edges2]
+    # -----------------------------------------------------------------------------
+
+    plt.figure(figsize=FIGUREDIMENSION)
     gs = gridspec.GridSpec(2, 2, height_ratios=[30, 1])
     ax0 = plt.subplot(gs[0,0])
     ax1 = plt.subplot(gs[0,1])
     ax2 = plt.subplot(gs[1, :])
 
     plt.axes(ax0)
-    plt.title("Left Flanking Region", fontsize=14)
+    plt.title("Left Flanking Region")
     # nx.draw_circular(G1, edgelist=edges1, edge_color=weights1, with_labels=True, edge_cmap=plt.cm.cool)
     pos1 = nx.spring_layout(G1)
     nx.draw_networkx(G1, pos1, edgelist=edges1, edge_color=weights1,
                      with_labels=True, edge_cmap=plt.cm.cool)
+    plt.tight_layout()
     # labels = nx.get_edge_attributes(G1,'weight')
     # nx.draw_networkx_edge_labels(G1,pos1,edge_labels=labels)
     plt.axes(ax2)
@@ -193,11 +212,12 @@ def draw_connecting_graphs(cnum):
     plt.axis('off')
 
     plt.axes(ax1)
-    plt.title("Right Flanking Region", fontsize=14)
+    plt.title("Right Flanking Region")
     # nx.draw_circular(G2, edgelist=edges2, edge_color=weights2, with_labels=True, edge_cmap=plt.cm.cool)
     pos2 = nx.spring_layout(G2)
     nx.draw_networkx(G2, pos2, edgelist=edges2, edge_color=weights2,
                      with_labels=True, edge_cmap=plt.cm.cool)
+    plt.tight_layout()
     # labels = nx.get_edge_attributes(G2,'weight')
     # nx.draw_networkx_edge_labels(G2,pos2,edge_labels=labels)
     plt.axes(ax2)
@@ -206,11 +226,10 @@ def draw_connecting_graphs(cnum):
     plt.title("{} to {}".format(min(w2), max(w2)))
     plt.imshow([w2], cmap="cool", aspect="auto")
     plt.axis('off')
-
-    plt.suptitle(f"Sequence Similarity >= {ISOLATION_LIMIT}")
     plt.tight_layout()
+    # plt.suptitle(f"Sequence Similarity >= {ISOLATION_LIMIT}")
     plt.draw()
-    plt.show()
+    plt.savefig(FIGLOCATION + 'graph6.pdf', dpi=500, format='pdf')
 
 
 def plot_clique_plots(summary_types):

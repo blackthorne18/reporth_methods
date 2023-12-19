@@ -10,6 +10,12 @@ CLUSTERFILENAME = "/cluster_output_Sep20_875/clusters_Sep20.txt"
 PATHFILENAME = "cluster_output_Sep20_875/path_making_Sep20.txt"
 KEEPTYPE = "type2"
 IGNOREDGENOMES = ['chlPCL1606']
+FIGLOCATION = FILEPATH + '/images/'
+plt.rcParams.update({'font.size': 20})
+LABELFONTSIZE = 24
+FIGUREDIMENSION = (12, 8)
+COLOR1='#07000a'
+COLOR2='#b813ff'
 # @timethis
 
 
@@ -78,7 +84,7 @@ def read_input():
 
 
 # @timethis
-def graph1b():
+def graph3():
     """
     Note: lhs and rhs are structured as:
     lhs = {
@@ -137,7 +143,7 @@ def graph1b():
 
     bins = range(90, 101)
     either = list(lg.values()) + list(rg.values())
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
     plt.hist(either, bins=bins)
     # plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
     # plt.hist(rg.values(), bins=bins, alpha=0.5, label='R')
@@ -146,12 +152,13 @@ def graph1b():
     #     90, 101), label=['L', 'R'])
     # plt.xticks(range(90, 101))
     # plt.legend(loc='upper right')
-    plt.ylabel("Number of Clusters")
-    plt.xlabel("Average similarity")
+    plt.ylabel("Number of Clusters", fontsize=LABELFONTSIZE)
+    plt.xlabel("Average similarity", fontsize=LABELFONTSIZE)
     # plt.title("Average Similarity of Flanking Sequences Within A Cluster")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.show()
+    fig.savefig(FIGLOCATION + 'graph3.pdf', dpi=500, format='pdf')
 
 
 # @timethis
@@ -160,9 +167,9 @@ def graph2_all_types_stacked():
     types = {x: [] for x in list(set(clus_cols.values()))}
     allgens = list(set([x.split("_")[0] for x in clus_cols]))
     colorguide = {
-        'type0': 'green',
-        'type1': 'blue',
-        'type2': 'red',
+        'type0': '#008600',
+        'type1': '#4c6eaf',
+        'type2': '#7c130a',
         'all': 'black'
     }
 
@@ -183,14 +190,12 @@ def graph2_all_types_stacked():
     # plt.hist(yax, bins=ybins)
     plt.hist(yaxs, bins=ybins, stacked=True, label=labels)
     plt.legend()
-    plt.xticks(ybins, ybin_alternate, fontsize=14)
-    plt.xlabel("Number of genomes present in a cluster", fontsize=18)
-    plt.ylabel("Number of clusters", fontsize=18)
+    plt.xticks(ybins, ybin_alternate)
+    plt.xlabel("Number of genomes present in a cluster", fontsize=LABELFONTSIZE)
+    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
     plt.show()
 
 # @timethis
-
-
 def graph2():
     cluslen = {}
     for key, val in clusters.items():
@@ -198,29 +203,34 @@ def graph2():
         cluslen[key] = len(list(set(gens)))
 
     colorguide = {
-        'type0': 'green',
-        'type1': 'blue',
-        'type2': 'red',
+        'type0': '#008600',
+        'type1': '#4c6eaf',
+        'type2': '#7c130a',
         'all': 'black'
     }[KEEPTYPE]
     yax = cluslen.values()
     ybins = range(1, max(yax) + 1)
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
     plt.hist(yax, bins=ybins, color=colorguide)
-    plt.xticks(ybins, ybin_alternate, fontsize=14)
-    plt.xlabel("Number of genomes present in a cluster", fontsize=18)
-    plt.ylabel("Number of clusters", fontsize=18)
+    plt.xticks(ybins, ybin_alternate)
+    plt.xlabel("Number of genomes present in a cluster", fontsize=LABELFONTSIZE)
+    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
     plt.title(KEEPTYPE)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.show()
+    # plt.show()
+    plt.savefig(FIGLOCATION + 'graph2.pdf', dpi=500, format='pdf')
 
 
 # @timethis
-def graph3():
-    phylo_gens = ['ChPhzTR38', 'ChPhzS24', 'ChPhzTR18', 'ChPhzTR39', 'PA23', 'ChPhzS23', '66', 'Lzh-T5', 'O6', 'ChPhzTR36', '6698', 'C50', 'P2', '2210', '19603', 'CW2', 'Q16', '464', '449', 'M12', 'StFRB508',
-                  'JD37', 'M71', 'K27', 'Pb-St2', 'B25', 'SLPH10', 'ChPhzS135', 'DTR133', 'ToZa7', 'ChPhzTR44', 'PCL1607', 'PCL1391', 'ChPhzS140', '17809', '17411', 'ZJU60', '21509', '189', '17415', '50083', 'TAMOak81']
+def graph4():
+    phylo_gens = [
+            'ChPhzTR18', 'ChPhzS24', 'ChPhzTR38', 'ChPhzTR39', 'PA23', 'ChPhzS23', '66', 'O6', 'Lzh-T5', 'ChPhzTR36',
+            '6698', 'C50', 'P2', '19603', '2210', 'Q16', 'StFRB508', 'JD37', 'CW2', '449', '464', 'M12', 'K27', 'M71',
+            'Pb-St2', '189', '17415', '50083', 'TAMOak81', 'B25', 'ChPhzS140', 'PCL1391', 'PCL1607', 'ToZa7', 'ChPhzS135',
+            'DTR133', 'SLPH10', 'ChPhzTR44', 'ZJU60', '17809', '17411', '21509'
+    ]
 
     reversekey = {}
     for item in pathmk:
@@ -260,26 +270,28 @@ def graph3():
     del gsum['left']
     del gsum['right']
 
+    plt.figure(figsize=(20, 12))
     plt.subplot(1, 3, 1)
     plt.bar(range(len(gsum)), gsum.values())
     plt.xticks(range(len(gsum)), ["Both", "Either"])
-    plt.ylabel("Number of REPINs", fontsize = 14)
+    plt.ylabel("Number of REPINs", fontsize = LABELFONTSIZE)
     # plt.title("1.A. Left Flanking Sequnce")
     plt.subplot(1, 3, (2, 3))
     plt.bar(lbb, gbb, label='Both')
-    plt.bar(lbb, gbe, bottom=gbb, label='Either')
+    plt.bar(lbb, gbe, bottom=gbb, label='Either', color=COLOR2)
     plt.xticks(lbb, gennames, rotation=90)
-    plt.ylabel("Number of REPINs", fontsize = 14)
+    plt.ylabel("Number of REPINs", fontsize = LABELFONTSIZE)
     plt.legend()
     # plt.title("1.B. Right Flanking Sequnce")
     # plt.suptitle(
     #     "REPINs clustered based on both, or one of the flanking sequences")
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    plt.savefig(FIGLOCATION + 'graph4.pdf', dpi=500, format='pdf')
 
 
 # @timethis
-def graph4():
+def graph5():
     lhs, rhs = {}, {}
     mpara_L = {}
     mpara_R = {}
@@ -342,19 +354,21 @@ def graph4():
     clus_graph['both'] = clus_graph['L'] | clus_graph['R']
     cgticks = [str(x) for x in list(clus_graph['both'].keys())]
     clussize = [len(clusters[key]) for key in clus_graph['both']]
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
     plt.bar(range(len(cgticks)), clus_graph['both'].values())
     plt.scatter(range(len(cgticks)), clussize, color='red')
     plt.xticks(range(len(cgticks)), cgticks, rotation=60)
-    plt.yticks(range(30))
-    plt.ylabel("Number of genomes", fontsize=14)
-    plt.xlabel("Cluster Number", fontsize=14)
-
+    yticks = [str(x) if x%2==0 else '' for x in range(30)]
+    plt.yticks(range(len(yticks)), yticks)
+    plt.ylabel("Number of genomes", fontsize=LABELFONTSIZE)
+    plt.xlabel("Cluster Number", fontsize=LABELFONTSIZE)
+    plt.tight_layout()
     # plt.title(
     #     "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.show()
+    # plt.show()
+    plt.savefig(FIGLOCATION + 'graph5.pdf', dpi=500, format='pdf')
 
     # cgticks_L = [str(x) for x in list(clus_graph['L'].keys())]
     # cgticks_R = [str(x) for x in list(clus_graph['R'].keys())]
@@ -408,7 +422,7 @@ def graph4():
     # ------------------------------------------------------------
 
 
-def graph5():
+def graph7():
     fullset = {}
     for key, val in clusters.items():
         gen = [v.split("_")[0] for v in val]
@@ -494,28 +508,35 @@ def graph6():
     ybins = range(1, max(yax) + 1)
     ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
     plt.hist(yax, bins=ybins)
-    plt.xticks(ybins, ybin_alternate, fontsize=14)
+    plt.xticks(ybins, ybin_alternate)
+    plt.yticks(range(0, 100, 10))
     plt.xlabel(
-        "Number of genomes that contain the given extragenic space", fontsize=18)
-    plt.ylabel("Number of clusters", fontsize=18)
+        "Number of genomes that contain the given extragenic space", fontsize=LABELFONTSIZE)
+    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
     # plt.title("The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.show()
+    # plt.show()
+    plt.tight_layout()
+    plt.savefig(FIGLOCATION + 'graph6.pdf', dpi=500, format='pdf')
 
 
 def main():
+    # Standard Reading of INputs
     read_input()
+
+    # Primary Functions
     # graph1b()
     # graph2()
-    # graph2_all_types_stacked()
-     #graph3()
+    # graph3()
     graph4()
-    # graph5()
     # graph6()
 
+    # Secondary Functions
+    # graph2_all_types_stacked()
+    # graph7()
 
 if __name__ == "__main__":
     main()
