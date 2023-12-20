@@ -1,3 +1,12 @@
 #!/bin/bash
 
-python3 rc_entry.py --repin ./input/og_replist.txt --genomes ../input/genomes
+# From the rarefan output folder in this directory.
+python3.10 rc_entry.py --repin rarefan_output/ --genomes ./input/genomes
+
+# Once the above code is run, a file called 'sortedrepins.txt' is created
+# in ./rarefan_output/ 
+# This sortedrepins.txt has been moved to the input folder so that the following
+# code can be run. This is just converting the rarefan output into a more
+# readable form for this program
+python3 rc_entry.py --repin ./input/og_replist.txt --genomes ./input/genomes
+

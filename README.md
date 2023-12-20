@@ -3,6 +3,15 @@ Run `visualise_clusters.r` to visualise REPINs found in a particular cluster on 
 
 ## What is runtest?
 Runs the clustering algorithm on the input file. Note this is a local instance of the clustering algorithm
+> From the rarefan output folder in this directory.
+`python3.10 rc_entry.py --repin rarefan_output/ --genomes ./input/genomes`
+
+> Once the above code is run, a file called 'sortedrepins.txt' is created
+> in ./rarefan_output/ 
+> This sortedrepins.txt has been moved to the input folder so that the following
+> code can be run. This is just converting the rarefan output into a more
+> readable form for this program
+`python3 rc_entry.py --repin ./input/og_replist.txt --genomes ./input/genomes`
 
 ## How to use graph_main.py
 The figures are generated as per the function name.

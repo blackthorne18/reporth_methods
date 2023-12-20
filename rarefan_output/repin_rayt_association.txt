@@ -1,0 +1,34 @@
+Genome	RAYT	REPINgroups
+chlChPhzTR39	0	1,3
+chlO6	0	1,3
+chlO6	1	2,4,5
+chlK27	0	2,4,5
+chl6698	0	1,3
+chlPb-St2	0	0
+chlB25	0	0
+chlB25	1	2,4,5
+chlChPhzTR18	0	1,3
+chlM12	0	2,4,5
+chlC50	0	1,3
+chlChPhzTR36	0	1,3
+spMRSN12121	0	
+chl189	0	0
+chlPCL1606	0	
+chlChPhzTR38	0	1,3
+chlP2	0	2,4,5
+chlP2	1	1,3
+chlPA23	0	1,3
+chl21509	0	1,3
+chlChPhzS24	0	1,3
+chlM71	0	2,4,5
+chl66	0	1,3
+chl66	1	2,4,5
+chlStFRB508	0	2,4,5
+chlLzh-T5	0	1,3
+chlChPhzS23	0	1,3
+chlChPhzS23	1	2,4,5
+chlTAMOak81	0	2,4,5
+chlTAMOak81	1	0
+chlTAMOak81	2	1,3
+chl17415	0	0
+chl17415	1	2,4,5
