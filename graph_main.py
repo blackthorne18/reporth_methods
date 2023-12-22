@@ -3,25 +3,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import collections
-# from prajwaltools import timethis
+import warnings
+from copy import deepcopy
 
-
-FILEPATH = "./cluster_output_Sep20_875/"
+FILEPATH = "./temp/cluster_output_Sep20_875/"
 CLUSTERFILENAME = FILEPATH + "/clusters_Sep20.txt"
 PATHFILENAME = FILEPATH + "/path_making_Sep20.txt"
-KEEPTYPE = "type2"
 IGNOREDGENOMES = ['chlPCL1606']
-FIGLOCATION = FILEPATH + '/images/'
+FIGLOCATION = './temp/images/'
 plt.rcParams.update({'font.size': 20})
 LABELFONTSIZE = 24
 FIGUREDIMENSION = (12, 8)
 COLOR1='#07000a'
 COLOR2='#b813ff'
-# @timethis
+
 
 
 def read_input():
-    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, KEEPTYPE, alltypes, genomenames
+    global clusters, pathmk, lhs_hits, rhs_hits, store_nearby_reps, flank_pairwise_dists, clusters, clus_cols, alltypes, genomenames, repbytype
     lhs_hits = pickle.load(open(f"{FILEPATH}/lhs_hits.p", "rb"))
     rhs_hits = pickle.load(open(f"{FILEPATH}/rhs_hits.p", "rb"))
     store_nearby_reps = pickle.load(
@@ -29,7 +28,7 @@ def read_input():
     flank_pairwise_dists = pickle.load(
         open(f"{FILEPATH}/flank_pairwise_dists.p", "rb"))
 
-    with open(FILEPATH + CLUSTERFILENAME) as f:
+    with open(CLUSTERFILENAME) as f:
         f_read = [i.split(" ") for i in f.read().split("\n")]
         for x in range(len(f_read)):
             for y in range(len(f_read[x])):
@@ -44,13 +43,13 @@ def read_input():
                 continue
             if f[0] not in clusters:
                 clusters[f[0]] = []
-            if f[1] == 'chlPCL1606':
+            if f[1] in IGNOREDGENOMES:
                 continue
             clusters[f[0]].append(f"{f[1]}_{f[2]}_{f[3]}")
             clus_cols[f"{f[1]}_{f[2]}_{f[3]}"] = f[4]
 
     pathmk = []
-    with open(FILEPATH + PATHFILENAME) as f:
+    with open(PATHFILENAME) as f:
         fread = f.read().split("\n")
         for i in range(len(fread)):
             if ">" in fread[i]:
@@ -67,24 +66,126 @@ def read_input():
     for k, v in clus_cols.items():
         repbytype[v].append(k)
 
-    # while True:
-    #     print(f"The following types of repins exist:{alltypes} or 'all'")
-    #     print(f"Which type of REPIN should be included in the dataset for plotting the graphs...")
-    #     KEEPTYPE = input().lower()
-    #     if KEEPTYPE == 'all' or KEEPTYPE in alltypes:
-    #         break
 
-    if KEEPTYPE != 'all':
-        for key in clusters:
-            clusters[key] = [v for v in clusters[key]
-                             if v in repbytype[KEEPTYPE]]
-        _types = []
-        for key, val in clusters.items():
-            for v in val:
-                _types.append(clus_cols[v])
+def graph2():
+    for keep_type in ['all', 'type0', 'type1', 'type2']:
+        copy_clusters = deepcopy(clusters)
+        if keep_type != 'all':
+            for key in copy_clusters:
+                copy_clusters[key] = [v for v in copy_clusters[key] if v in repbytype[keep_type]]
+            _types = []
+            for key, val in copy_clusters.items():
+                for v in val:
+                    _types.append(clus_cols[v])
+
+        cluslen = {}
+        for key, val in copy_clusters.items():
+            gens = [v.split("_")[0] for v in val]
+            cluslen[key] = len(list(set(gens)))
+
+        colorguide = {
+            'type0': '#008b00', #Green
+            'type1': '#8b0000', #Red
+            'type2': '#4682b4', #Blue
+            'all': 'black'
+        }[keep_type]
+        yax = cluslen.values()
+        ybins = range(1, max(yax) + 1)
+        ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+        fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
+        plt.hist(yax, bins=ybins, color=colorguide)
+        plt.xticks(ybins, ybin_alternate)
+        plt.xlabel("Number of genomes present in a cluster", fontsize=LABELFONTSIZE)
+        plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
+        plt.title(keep_type)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        # plt.show()
+        plt.savefig(FIGLOCATION + f'graph2_{keep_type}.pdf', dpi=500, format='pdf')
+        plt.figure().clear()
+        plt.close()
+        plt.cla()
+        plt.clf()
 
 
-# @timethis
+def graph2b():
+    # The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome.
+    oneset = {}
+    reversekey = {}
+    EGS_THRESHOLD = 700
+
+    for key, val in clusters.items():
+        gen = [v.split("_")[0] for v in val]
+        if len(set(gen)) > 1:
+            continue
+        # Only looking at clusters of size 1
+        if len(val) == 0:
+            continue
+        oneset[key] = val[0]
+        reversekey[val[0]] = key
+
+    egs_exists_check = {key: {gen: {'left': None, 'right': None}
+                              for gen in genomenames} for key in oneset}
+
+    for key, val in lhs_hits.items():
+        if key not in oneset.values():
+            continue
+        clusnum = reversekey[key]
+        for item in val:
+            if item[1] in IGNOREDGENOMES:
+                continue
+            egs_exists_check[clusnum][item[1]]['left'] = [item[4], item[5]]
+    for key, val in rhs_hits.items():
+        if key not in oneset.values():
+            continue
+        clusnum = reversekey[key]
+        for item in val:
+            if item[1] in IGNOREDGENOMES:
+                continue
+            egs_exists_check[clusnum][item[1]]['right'] = [item[4], item[5]]
+
+    egs_exists = {key: [0] for key in oneset}
+    for key, val in egs_exists_check.items():
+        confirm = []
+        # print(key)
+        for gen, item in val.items():
+            # print(gen, item)
+            if item['left'] is None or item['right'] is None:
+                continue
+            d1 = abs(item['left'][0] - item['right'][0])
+            d2 = abs(item['left'][1] - item['right'][0])
+            d3 = abs(item['left'][0] - item['right'][1])
+            d4 = abs(item['left'][1] - item['right'][1])
+            diff = min(d1, d2, d3, d4)
+            if diff <= EGS_THRESHOLD:
+                confirm.append(gen)
+        egs_exists[key] = list(set(confirm))
+        # exit()
+
+    egs_exists = {k: len(v) for k, v in egs_exists.items()}
+    yax = list(egs_exists.values())
+    ybins = range(1, max(yax) + 1)
+    ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
+
+    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
+    plt.hist(yax, bins=ybins, color='black')
+    plt.xticks(ybins, ybin_alternate)
+    plt.yticks(range(0, 100, 10))
+    plt.xlabel(
+        "Number of genomes that contain the given extragenic space", fontsize=LABELFONTSIZE)
+    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
+    # plt.title("The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome")
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    # plt.show()
+    plt.tight_layout()
+    plt.savefig(FIGLOCATION + 'graph2_b.pdf', dpi=500, format='pdf')
+    plt.figure().clear()
+    plt.close()
+    plt.cla()
+    plt.clf()
+
+
 def graph3():
     """
     Note: lhs and rhs are structured as:
@@ -132,15 +233,14 @@ def graph3():
                 except Exception:
                     # rg[key].append(0)
                     pass
-
-    for key in lg:
-        lg[key] = np.mean(lg[key])
-        rg[key] = np.mean(rg[key])
-
-    # for key in lg:
-    #     if lg[key] < 50:
-    #         print(key, len(clusters[key]))
-    # exit()
+    # I expect to see RuntimeWarnings in this block
+    # This is because for clusters of size 1, we will be taking mean
+    # of an empty slice
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        for key in lg:
+            lg[key] = np.mean(lg[key])
+            rg[key] = np.mean(rg[key])
 
     bins = range(90, 101)
     either = list(lg.values()) + list(rg.values())
@@ -158,73 +258,14 @@ def graph3():
     # plt.title("Average Similarity of Flanking Sequences Within A Cluster")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.show()
-    fig.savefig(FIGLOCATION + 'graph3.pdf', dpi=500, format='pdf')
-
-
-# @timethis
-def graph2_all_types_stacked():
-    cluslen = {}
-    types = {x: [] for x in list(set(clus_cols.values()))}
-    allgens = list(set([x.split("_")[0] for x in clus_cols]))
-    colorguide = {
-        'type0': '#008600',
-        'type1': '#4c6eaf',
-        'type2': '#7c130a',
-        'all': 'black'
-    }
-
-    for key, val in clusters.items():
-        gens = [v.split("_")[0] for v in val]
-        gens = [x for x in gens if x != "chlPCL1606"]
-        cluslen[key] = len(list(set(gens)))
-        clus_cols2 = [clus_cols[x] for x in val]
-        for t in types:
-            types[t].append(min(len(allgens), clus_cols2.count(t)))
-
-    yax = cluslen.values()
-    yaxs = [types[x] for x in types]
-    labels = [x for x in types]
-    ybins = range(1, max(yax) + 1)
-    ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
-
-    # plt.hist(yax, bins=ybins)
-    plt.hist(yaxs, bins=ybins, stacked=True, label=labels)
-    plt.legend()
-    plt.xticks(ybins, ybin_alternate)
-    plt.xlabel("Number of genomes present in a cluster", fontsize=LABELFONTSIZE)
-    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
-    plt.show()
-
-# @timethis
-def graph2():
-    cluslen = {}
-    for key, val in clusters.items():
-        gens = [v.split("_")[0] for v in val]
-        cluslen[key] = len(list(set(gens)))
-
-    colorguide = {
-        'type0': '#008b00', #Green
-        'type1': '#8b0000', #Red
-        'type2': '#4682b4', #Blue
-        'all': 'black'
-    }[KEEPTYPE]
-    yax = cluslen.values()
-    ybins = range(1, max(yax) + 1)
-    ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
-    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
-    plt.hist(yax, bins=ybins, color=colorguide)
-    plt.xticks(ybins, ybin_alternate)
-    plt.xlabel("Number of genomes present in a cluster", fontsize=LABELFONTSIZE)
-    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
-    plt.title(KEEPTYPE)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
     # plt.show()
-    plt.savefig(FIGLOCATION + f'graph2_{KEEPTYPE}.pdf', dpi=500, format='pdf')
+    fig.savefig(FIGLOCATION + 'graph3.pdf', dpi=500, format='pdf')
+    plt.figure().clear()
+    plt.close()
+    plt.cla()
+    plt.clf()
 
 
-# @timethis
 def graph4():
     phylo_gens = [
             'ChPhzTR18', 'ChPhzS24', 'ChPhzTR38', 'ChPhzTR39', 'PA23', 'ChPhzS23', '66', 'O6', 'Lzh-T5', 'ChPhzTR36',
@@ -289,9 +330,12 @@ def graph4():
     plt.tight_layout()
     # plt.show()
     plt.savefig(FIGLOCATION + 'graph4.pdf', dpi=500, format='pdf')
+    plt.figure().clear()
+    plt.close()
+    plt.cla()
+    plt.clf()
 
 
-# @timethis
 def graph5():
     lhs, rhs = {}, {}
     mpara_L = {}
@@ -380,6 +424,10 @@ def graph5():
     ax.spines['right'].set_visible(False)
     # plt.show()
     plt.savefig(FIGLOCATION + 'graph5.pdf', dpi=500, format='pdf')
+    plt.figure().clear()
+    plt.close()
+    plt.cla()
+    plt.clf()
 
     # cgticks_L = [str(x) for x in list(clus_graph['L'].keys())]
     # cgticks_R = [str(x) for x in list(clus_graph['R'].keys())]
@@ -433,120 +481,16 @@ def graph5():
     # ------------------------------------------------------------
 
 
-def graph7():
-    fullset = {}
-    for key, val in clusters.items():
-        gen = [v.split("_")[0] for v in val]
-        if len(set(gen)) >= 42:
-            fullset[key] = val
-
-    # Color distribution
-    cold = {a: 0 for a in alltypes}
-    cold['mix'] = 0
-    doublecols = []
-    for key, val in fullset.items():
-        cols = [clus_cols[v] for v in val]
-        if len(set(cols)) == 1:
-            cold[cols[0]] += 1
-        else:
-            cold['mix'] += 1
-            doublecols.append(tuple(set(cols)))
-        if len(set(cols)) == 3:
-            print(key)
-    print(cold, sum(cold.values()))
-    _uk = {d: 0 for d in doublecols}
-    _uk = {d: doublecols.count(d) for d in _uk}
-    print(_uk)
-    print(doublecols)
-
-
-def graph6():
-    # The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome.
-    oneset = {}
-    reversekey = {}
-    EGS_THRESHOLD = 700
-
-    for key, val in clusters.items():
-        gen = [v.split("_")[0] for v in val]
-        if len(set(gen)) > 1:
-            continue
-        # Only looking at clusters of size 1
-        if len(val) == 0:
-            continue
-        oneset[key] = val[0]
-        reversekey[val[0]] = key
-
-    egs_exists_check = {key: {gen: {'left': None, 'right': None}
-                              for gen in genomenames} for key in oneset}
-
-    for key, val in lhs_hits.items():
-        if key not in oneset.values():
-            continue
-        clusnum = reversekey[key]
-        for item in val:
-            if item[1] in IGNOREDGENOMES:
-                continue
-            egs_exists_check[clusnum][item[1]]['left'] = [item[4], item[5]]
-    for key, val in rhs_hits.items():
-        if key not in oneset.values():
-            continue
-        clusnum = reversekey[key]
-        for item in val:
-            if item[1] in IGNOREDGENOMES:
-                continue
-            egs_exists_check[clusnum][item[1]]['right'] = [item[4], item[5]]
-
-    egs_exists = {key: [0] for key in oneset}
-    for key, val in egs_exists_check.items():
-        confirm = []
-        # print(key)
-        for gen, item in val.items():
-            # print(gen, item)
-            if item['left'] is None or item['right'] is None:
-                continue
-            d1 = abs(item['left'][0] - item['right'][0])
-            d2 = abs(item['left'][1] - item['right'][0])
-            d3 = abs(item['left'][0] - item['right'][1])
-            d4 = abs(item['left'][1] - item['right'][1])
-            diff = min(d1, d2, d3, d4)
-            if diff <= EGS_THRESHOLD:
-                confirm.append(gen)
-        egs_exists[key] = list(set(confirm))
-        # exit()
-
-    egs_exists = {k: len(v) for k, v in egs_exists.items()}
-    yax = list(egs_exists.values())
-    ybins = range(1, max(yax) + 1)
-    ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
-
-    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
-    plt.hist(yax, bins=ybins, color='black')
-    plt.xticks(ybins, ybin_alternate)
-    plt.yticks(range(0, 100, 10))
-    plt.xlabel(
-        "Number of genomes that contain the given extragenic space", fontsize=LABELFONTSIZE)
-    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
-    # plt.title("The number of times each extragenic space occurs in P. chlororaphis for REPINs that occur in only one genome")
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    # plt.show()
-    plt.tight_layout()
-    plt.savefig(FIGLOCATION + 'graph6.pdf', dpi=500, format='pdf')
-
-
 def main():
-    # Standard Reading of INputs
+    # Standard Reading of Inputs
     read_input()
 
     # Primary Functions
     graph2()
-    # graph3()
-    # graph5()
-    # graph6()
-
-    # Secondary Functions
-    # graph2_all_types_stacked()
-    # graph7()
+    graph2b()
+    graph3()
+    graph4()
+    graph5()
 
 if __name__ == "__main__":
     main()
