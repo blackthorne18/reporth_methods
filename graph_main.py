@@ -6,9 +6,9 @@ import collections
 # from prajwaltools import timethis
 
 
-FILEPATH = "./temp/"
-CLUSTERFILENAME = "/cluster_output_Sep20_875/clusters_Sep20.txt"
-PATHFILENAME = "cluster_output_Sep20_875/path_making_Sep20.txt"
+FILEPATH = "./cluster_output_Sep20_875/"
+CLUSTERFILENAME = FILEPATH + "/clusters_Sep20.txt"
+PATHFILENAME = FILEPATH + "/path_making_Sep20.txt"
 KEEPTYPE = "type2"
 IGNOREDGENOMES = ['chlPCL1606']
 FIGLOCATION = FILEPATH + '/images/'

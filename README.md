@@ -4,14 +4,19 @@ Run `visualise_clusters.r` to visualise REPINs found in a particular cluster on 
 ## What is runtest?
 Runs the clustering algorithm on the input file. Note this is a local instance of the clustering algorithm
 > From the rarefan output folder in this directory.
-`python3.10 rc_entry.py --repin rarefan_output/ --genomes ./input/genomes`
+`python3.10 rc_entry.py --repin rarefan_output/ --genomes ./input/genomes --reptypes 0,1,2`
 
 > Once the above code is run, a file called 'sortedrepins.txt' is created
 > in ./rarefan_output/ 
 > This sortedrepins.txt has been moved to the input folder so that the following
-> code can be run. This is just converting the rarefan output into a more
-> readable form for this program
-`python3 rc_entry.py --repin ./input/og_replist.txt --genomes ./input/genomes`
+> code can be run. This file contains all the REPINs found by RAREFAN from all genomes
+> and is converting the rarefan output into a more readable form for this program
+`python3 rc_entry.py --repin ./input/og_replist.txt --genomes ./input/genomes --reptypes 0,1,2`
+
+> IMPORTANT
+> The output from RAREFAN here contains the genome 'chlPCL1606' this has not been included in the analysis. From the
+> 'sortedrepins.txt' file as mentioned above, all REPINs from 'chlPCL1606' has been removed. I have not edited the 
+> RAREFAN output file to show the original dataset unmodified
 
 ## How to use graph_main.py
 The figures are generated as per the function name.
