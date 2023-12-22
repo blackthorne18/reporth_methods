@@ -166,8 +166,8 @@ def setup_flank_matches():
         all_parameters['bank'], right_flank, flank_gene_param)
     # -------------------METHODS-PAPER----------------------------
     # Storing the LHS and RHS hits to pickle file
-    pickle.dump(lhs_hits, open(f"./{all_parameters['out']}/lhs_hits.p", "wb"))
-    pickle.dump(rhs_hits, open(f"./{all_parameters['out']}/rhs_hits.p", "wb"))
+    pickle.dump(lhs_hits, open(f"{all_parameters['out']}/lhs_hits.p", "wb"))
+    pickle.dump(rhs_hits, open(f"{all_parameters['out']}/rhs_hits.p", "wb"))
     store_nearby_reps = {'L': {}, 'R': {}}
     # ------------------------------------------------------------
     for key, repin in repins_with_1k_flanks.items():
@@ -240,9 +240,9 @@ def setup_flank_matches():
     # -------------------METHODS-PAPER---------------------------------------
     # Storing the sequence similarity between flanking sequences
     pickle.dump(flank_pairwise_dists, open(
-        f"./{all_parameters['out']}/flank_pairwise_dists.p", "wb"))
+        f"{all_parameters['out']}/flank_pairwise_dists.p", "wb"))
     # Storing information on REPINs present close to flanking sequences
-    pickle.dump(store_nearby_reps, open(f"./{all_parameters['out']}/store_nearby_reps.p", "wb"))
+    pickle.dump(store_nearby_reps, open(f"{all_parameters['out']}/store_nearby_reps.p", "wb"))
     # -----------------------------------------------------------------------
 
     pickle.dump(mixed_clusters, open(
