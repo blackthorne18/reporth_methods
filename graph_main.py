@@ -188,7 +188,7 @@ def graph2b():
     plt.clf()
 
 
-def graph3():
+def graph4():
     """
     Note: lhs and rhs are structured as:
     lhs = {
@@ -246,6 +246,11 @@ def graph3():
 
     bins = range(90, 101)
     either = list(lg.values()) + list(rg.values())
+    # How many of these are above 97% and how many between 90-91%
+    n95 = round(len([x for x in either if x >= 95]) / len(either), 3)
+    n90 = round(len([x for x in either if x < 92]) / len(either), 3)
+    print(f'Graph4\nProportion of hits >=95%: {n95}\nProportion of hits <92%: {n90}')
+
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
     plt.hist(either, bins=bins, color='black')
     # plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
@@ -261,14 +266,14 @@ def graph3():
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     # plt.show()
-    fig.savefig(FIGLOCATION + 'graph3.pdf', dpi=500, format='pdf')
+    fig.savefig(FIGLOCATION + 'graph4.pdf', dpi=500, format='pdf')
     plt.figure().clear()
     plt.close()
     plt.cla()
     plt.clf()
 
 
-def graph4():
+def graph5():
     phylo_gens = [
             'ChPhzTR18', 'ChPhzS24', 'ChPhzTR38', 'ChPhzTR39', 'PA23', 'ChPhzS23', '66', 'O6', 'Lzh-T5', 'ChPhzTR36',
             '6698', 'C50', 'P2', '19603', '2210', 'Q16', 'StFRB508', 'JD37', 'CW2', '449', '464', 'M12', 'K27', 'M71',
@@ -316,6 +321,10 @@ def graph4():
 
     plt.figure(figsize=(20, 12))
     plt.subplot(1, 3, 1)
+    # This subplot in numbers
+    nboth = gsum['both'] / (gsum['both'] + gsum['either'])
+    neither = 1 - nboth
+    print(f'Graph5\nProportion of both:{nboth}\nProportion of either:{neither}')
     plt.bar(range(len(gsum)), gsum.values(), color=['black', 'gray'])
     plt.xticks(range(len(gsum)), ["Both", "Either"])
     plt.ylabel("Number of REPINs", fontsize = LABELFONTSIZE)
@@ -331,14 +340,19 @@ def graph4():
     #     "REPINs clustered based on both, or one of the flanking sequences")
     plt.tight_layout()
     # plt.show()
-    plt.savefig(FIGLOCATION + 'graph4.pdf', dpi=500, format='pdf')
+    plt.savefig(FIGLOCATION + 'graph5.pdf', dpi=500, format='pdf')
     plt.figure().clear()
     plt.close()
     plt.cla()
     plt.clf()
 
 
-def graph5():
+def graph6():
+    reversekey = {}
+    for item in pathmk:
+        for rep in item[0]:
+            reversekey[rep] = item['path']
+
     lhs, rhs = {}, {}
     mpara_L = {}
     mpara_R = {}
@@ -371,48 +385,45 @@ def graph5():
         if len(val) > 1:
             rhs[key] = list(val.keys())
 
-    clus_graph = {'L': {}, 'R': {}}
-    gen_graph = {'L': {}, 'R': {}}
+    clus_graph = {}
     for key, val in clusters.items():
         if len(val) < 2:
             continue
-        clus_graph['L'][key] = 0
-        clus_graph['R'][key] = 0
+        clus_graph[key] = 0
         for rep in val:
-            gen = rep.split("_")[0]
-            if gen not in gen_graph['L']:
-                gen_graph['L'][gen] = 0
-            if gen not in gen_graph['R']:
-                gen_graph['R'][gen] = 0
+            _match = ''
             if rep in lhs:
-                clus_graph['L'][key] += 1
-                gen_graph['L'][gen] += 1
+                _match = 'left'
             if rep in rhs:
-                clus_graph['R'][key] += 1
-                gen_graph['R'][gen] += 1
+                if _match == 'left':
+                    _match = 'both'
+                else:
+                    _match = 'right'
+
+            # If this REPIN was merged because of the '_match' flanking sequence i.e. left or right
+            # and that same flanking sequence is likely present twice, then this is false positive
+            # Or if it was matched because of both flanking sequences and one of them is a paralog
+            # then this is false positive
+            if _match != '':
+                if reversekey[rep] == _match or reversekey[rep] == 'both':
+                    clus_graph[key] += 1
 
     # ------------------------------------------------------------
     # Graph by cluster
-    clus_graph['L'] = {key: val for key,
-                       val in clus_graph['L'].items() if val > 0}
-    clus_graph['R'] = {key: val for key,
-                       val in clus_graph['R'].items() if val > 0}
+    clus_graph = {key: val for key, val in clus_graph.items() if val > 0}
+    clus_graph = dict(collections.OrderedDict(sorted(clus_graph.items())))
 
-    clus_graph['both'] = clus_graph['L'] | clus_graph['R']
-
-    clus_graph['both'] = dict(collections.OrderedDict(sorted(clus_graph['both'].items())))
-
-    cgticks = [str(x) for x in list(clus_graph['both'].keys())]
-    clussize = {key: len(clusters[key]) for key in clus_graph['both']}
+    cgticks = [str(x) for x in list(clus_graph.keys())]
+    clussize = {key: len(clusters[key]) for key in clus_graph}
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
+
     # Sorting dataset by cluster size
     clussize = dict(sorted(clussize.items(), key=lambda item: item[1]))
-    cgboth = sorted(clus_graph['both'].items(), key=lambda pair: list(clussize.keys()).index(pair[0]))
+    cgboth = sorted(clus_graph.items(), key=lambda pair: list(clussize.keys()).index(pair[0]))
     cgboth = {x[0]:x[1] for x in cgboth}
 
     plt.bar(range(len(cgticks)), clussize.values(), color='gray', label='Cluster size')
     plt.bar(range(len(cgticks)), cgboth.values(), color='black', label='Potential paralogs')
-    # plt.scatter(range(len(cgticks)), clussize, color='red')
     plt.xticks(range(len(cgticks)), cgboth.keys(), rotation=60)
     yticks = [str(x) if x%2==0 else '' for x in range(30)]
     plt.yticks(range(len(yticks)), yticks)
@@ -420,67 +431,15 @@ def graph5():
     plt.xlabel("Cluster number", fontsize=LABELFONTSIZE)
     plt.legend()
     plt.tight_layout()
-    # plt.title(
-    #     "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
+    # plt.title("Number of genomes in a cluster that have a potential paralog of a flanking sequence")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     # plt.show()
-    plt.savefig(FIGLOCATION + 'graph5.pdf', dpi=500, format='pdf')
+    plt.savefig(FIGLOCATION + 'graph6.pdf', dpi=500, format='pdf')
     plt.figure().clear()
     plt.close()
     plt.cla()
     plt.clf()
-
-    # cgticks_L = [str(x) for x in list(clus_graph['L'].keys())]
-    # cgticks_R = [str(x) for x in list(clus_graph['R'].keys())]
-
-    # clussize_L = [len(clusters[key]) for key in clus_graph['L']]
-    # clussize_R = [len(clusters[key]) for key in clus_graph['R']]
-    # plt.subplot(121)
-    # plt.bar(range(len(cgticks_L)), clus_graph['L'].values())
-    # plt.scatter(range(len(cgticks_L)), clussize_L, color='red')
-    # plt.xticks(range(len(cgticks_L)), cgticks_L, rotation=60)
-    # plt.yticks(range(30))
-    # plt.ylabel("Number of genomes")
-    # plt.xlabel("Cluster Number")
-    # plt.title("1.A. Left Flanking Sequnce")
-    # plt.subplot(122)
-    # plt.bar(range(len(cgticks_R)), clus_graph['R'].values())
-    # plt.scatter(range(len(cgticks_R)), clussize_R, color='red')
-    # plt.xticks(range(len(cgticks_R)), cgticks_R, rotation=60)
-    # plt.yticks(range(30))
-    # plt.ylabel("Number of genomes")
-    # plt.xlabel("Cluster Number")
-    # plt.title("1.B. Right Flanking Sequnce")
-    # plt.suptitle(
-    #     "Number of genomes in a cluster that have a potential paralog of a flanking sequence")
-    # plt.show()
-    # ------------------------------------------------------------
-
-    # ------------------------------------------------------------
-    # Graph by Genome
-
-    # genL = {k: v for k, v in gen_graph['L'].items() if v > 0}
-    # genR = {k: v for k, v in gen_graph['R'].items() if v > 0}
-
-    # plt.subplot(121)
-    # plt.bar(range(len(genL)), list(genL.values()), align='center')
-    # plt.xticks(range(len(genL)), list(genL.keys()), rotation=90)
-    # plt.yticks(range(5))
-    # plt.ylabel("Number of potential paralogs")
-    # plt.xlabel("Genome")
-    # plt.title("1.A. Left Flanking Sequnce")
-    # plt.subplot(122)
-    # plt.bar(range(len(genR)), list(genR.values()), align='center')
-    # plt.xticks(range(len(genR)), list(genR.keys()), rotation=90)
-    # plt.yticks(range(5))
-    # plt.ylabel("Number of potential paralogs")
-    # plt.xlabel("Genome")
-    # plt.title("1.B. Right Flanking Sequnce")
-    # plt.suptitle("Number of potential paralogs coming from different genomes")
-    # plt.tight_layout()
-    # plt.show()
-    # ------------------------------------------------------------
 
 
 def main():
@@ -488,11 +447,11 @@ def main():
     read_input()
 
     # Primary Functions
-    graph2()
-    graph2b()
-    graph3()
-    graph4()
-    graph5()
+    # graph2()
+    # graph2b()
+    # graph4()
+    # graph5()
+    graph6()
 
 if __name__ == "__main__":
     main()

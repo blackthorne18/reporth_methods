@@ -229,7 +229,7 @@ def draw_connecting_graphs(cnum):
     plt.tight_layout()
     # plt.suptitle(f"Sequence Similarity >= {ISOLATION_LIMIT}")
     plt.draw()
-    plt.savefig(FIGLOCATION + 'graph6.pdf', dpi=500, format='pdf')
+    plt.savefig(FIGLOCATION + 'graph7.pdf', dpi=500, format='pdf')
 
 
 def plot_clique_plots(summary_types):
