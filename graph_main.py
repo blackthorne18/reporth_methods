@@ -85,16 +85,18 @@ def graph2():
 
         colorguide = {
             'type0': '#008b00', #Green
-            'type1': '#8b0000', #Red
-            'type2': '#4682b4', #Blue
+            'type1': '#4682b4', #Blue
+            'type2': '#8b0000', #Red
             'all': 'black'
         }[keep_type]
         yax = cluslen.values()
         ybins = range(1, max(yax) + 1)
+        ybins = range(1, 42)
         ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
         fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
         plt.hist(yax, bins=ybins, color=colorguide)
         plt.xticks(ybins, ybin_alternate)
+        plt.ylim(0, 300)
         plt.xlabel("Number of genomes present in a cluster", fontsize=LABELFONTSIZE)
         plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
         plt.title(keep_type)

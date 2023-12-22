@@ -6,12 +6,13 @@ library(ggstance)
 library(hash)
 library(ggtreeExtra)
 library(showtext)
+library(patchwork)
 font_add(family = "dejavusans", regular = "input/dejavusans.ttf")
 showtext_auto()
 
-repgreen <- '#008600'
-repred   <- '#7c130a'
-repblue  <- '#4c6eaf'
+repgreen <- '#008b00'
+repred   <- '#8b0000'
+repblue  <- '#4682b4'
 
 # Where are the input files stored?
 TREEPATH <- "input/tree.nwk"
@@ -49,7 +50,7 @@ for (clus in fortytwo){
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
-plot1 <- ggtree(tree)  +
+plot1 <- ggtree(tree, branch.length = 0.8)  +
   geom_tiplab(align=TRUE, linesize=.5, size=6) + 
   geom_fruit(data=rayttree,geom=geom_tile,
              mapping = aes(y=genome, x=Color, fill=rayt),
@@ -94,10 +95,10 @@ for (cn in fortytwo){
 }
 
 color_values <- c("type0"="green4", "type0_1"="green4", "type0_2"="green",
-                  "type1"="red4", "type1_1"="red4", "type1_2"="red",
-                  "type2"="steelblue", "type2_1"="steelblue", "type2_2"="blue4")
+                  "type2"="red4", "type1_1"="red4", "type1_2"="red",
+                  "type1"="steelblue", "type2_1"="steelblue", "type2_2"="blue4")
 
-plot1+scale_fill_manual(values=color_values)  +
+plot1 <- plot1+scale_fill_manual(values=color_values)  +
   vexpand(0.04) +
   theme(text = element_text(family = "dejavusans", size=22))
 
@@ -118,11 +119,11 @@ for (clus in fortytwo){
   }
 }
 
-ggtree(tree)  +
+plot2 <- ggtree(tree)  +
   geom_tiplab(align=TRUE, linesize=.5, size=6) + 
   geom_fruit(data=rayttree,geom=geom_tile,
              mapping = aes(y=genome, x=Color, fill=rayt),
-             pwidth=0.1, offset=0.6) +
+             pwidth=0.1, offset=0.9) +
   geom_treescale() + 
   scale_fill_manual(values=color_values) +
   geom_facet(mapping=aes(x=type0), fill=repgreen, data=repcount, panel='Type 0',
@@ -131,10 +132,17 @@ ggtree(tree)  +
              geom=geom_barh, stat='identity') +
   geom_facet(mapping=aes(x=type2), fill=repblue, data=repcount, panel='Type 2',
              geom=geom_barh, stat='identity') +
-  xlim_expand(xlim=c(0,20), panel='Type 0') +
-  xlim_expand(xlim=c(0,20), panel='Type 1') +
-  xlim_expand(xlim=c(0,20), panel='Type 2') +
+  xlim_expand(xlim=c(0,0.2), panel='Tree') +
+  xlim_expand(xlim=c(0,42), panel='Type 0') +
+  xlim_expand(xlim=c(0,42), panel='Type 1') +
+  xlim_expand(xlim=c(0,42), panel='Type 2') +
   theme_tree2(text = element_text(family = "dejavusans", size=22)) 
 
+
+layout <- "
+BBBBBBBB
+#AAAAAAA
+"
+plot2/plot1 + plot_layout(design=layout)
 
 
