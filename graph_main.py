@@ -204,9 +204,9 @@ def graph2():
         cluslen[key] = len(list(set(gens)))
 
     colorguide = {
-        'type0': '#008b00',
-        'type1': '#4682b4',
-        'type2': '#8b0000',
+        'type0': '#008b00', #Green
+        'type1': '#8b0000', #Red
+        'type2': '#4682b4', #Blue
         'all': 'black'
     }[KEEPTYPE]
     yax = cluslen.values()
