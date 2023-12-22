@@ -17,7 +17,7 @@ repblue  <- '#4682b4'
 # Where are the input files stored?
 TREEPATH <- "input/tree.nwk"
 CLUSPATH <- "input/clusters.txt"
-fortytwo <- c(12, 66, 74, 79, 96, 111, 141, 150, 159, 873, 880, 906, 912, 924, 929, 934, 936, 945, 949, 952)
+fortytwo <- c(13, 17, 79, 87, 92, 109, 125, 157, 159, 170, 179, 859, 878, 884, 896, 901, 904, 906, 914, 917)
 clusters <- read.csv(CLUSPATH, sep=' ', header=FALSE)
 colnames(clusters) <- c('cluster', 'genome', 'start', 'end', 'color', 'seq')
 clusters <- clusters[c('cluster', 'genome', 'color')]
