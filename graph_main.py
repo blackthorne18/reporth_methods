@@ -247,13 +247,15 @@ def graph4():
 
     bins = range(90, 101)
     either = list(lg.values()) + list(rg.values())
+    either = [x for x in either if str(x) != 'nan']
     # How many of these are above 97% and how many between 90-91%
-    n95 = round(len([x for x in either if x >= 95]) / len(either), 3)
+    n96 = round(len([x for x in either if x >= 96]) / len(either), 3)
     n90 = round(len([x for x in either if x < 92]) / len(either), 3)
-    print(f'Graph4\nProportion of hits >=95%: {n95}\nProportion of hits <92%: {n90}')
+    print(f'Graph4\nProportion of hits >=96%: {n96}\nProportion of hits <92%: {n90}')
+    print(f'AUC', len(either))
 
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
-    plt.hist(either, bins=bins, color='black')
+    plt.hist(either, bins=bins, density=True, color='black')
     # plt.hist(lg.values(), bins=bins, alpha=0.5, label='L')
     # plt.hist(rg.values(), bins=bins, alpha=0.5, label='R')
     plt.xticks(range(90, 102, 2))
@@ -261,7 +263,7 @@ def graph4():
     #     90, 101), label=['L', 'R'])
     # plt.xticks(range(90, 101))
     # plt.legend(loc='upper right')
-    plt.ylabel("Number of clusters", fontsize=LABELFONTSIZE)
+    plt.ylabel("Proportion of clusters", fontsize=LABELFONTSIZE)
     plt.xlabel("Average similarity", fontsize=LABELFONTSIZE)
     # plt.title("Average Similarity of Flanking Sequences Within A Cluster")
     ax.spines['top'].set_visible(False)
@@ -408,7 +410,7 @@ def graph6():
             if _match != '':
                 if reversekey[rep] == _match or reversekey[rep] == 'both':
                     clus_graph[key] += 1
-
+                    print(f'Cluster:{key}\nMerged based on: {reversekey[rep]}\tPotential Paralog: {_match}')
     # ------------------------------------------------------------
     # Graph by cluster
     clus_graph = {key: val for key, val in clus_graph.items() if val > 0}
