@@ -1,45 +1,37 @@
-library(tidyverse)
-library(ggtree)
-library(glue)
-library(treeio)
-library(ggstance)
-library(hash)
-library(ggtreeExtra)
-library(showtext)
-library(patchwork)
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggtree))
+suppressPackageStartupMessages(library(glue))
+suppressPackageStartupMessages(library(treeio))
+suppressPackageStartupMessages(library(ggstance))
+suppressPackageStartupMessages(library(hash))
+suppressPackageStartupMessages(library(ggtreeExtra))
+suppressPackageStartupMessages(library(showtext))
+suppressPackageStartupMessages(library(patchwork))
 font_add(family = "dejavusans", regular = "input/dejavusans.ttf")
 showtext_auto()
 
+# Output file destination
+PLOTSAVEPATH <- './temp/images/figure42.pdf'
+
+# Where are the input files stored?
+TREEPATH <- "./input/tree.nwk"
+CLUSPATH <- "./temp/cluster_output_Sep20_875/clusters_Sep20.txt"
+rayttree <- read.csv('./input/rayts.csv', sep=',')
+fortytwo <- c(13, 17, 79, 87, 92, 109, 125, 157, 159, 170, 179, 859, 878, 884, 896, 901, 904, 906, 914, 917)
 repgreen <- '#008b00'
 repred   <- '#8b0000'
 repblue  <- '#4682b4'
 
-# Where are the input files stored?
-TREEPATH <- "input/tree.nwk"
-CLUSPATH <- "input/clusters.txt"
-fortytwo <- c(13, 17, 79, 87, 92, 109, 125, 157, 159, 170, 179, 859, 878, 884, 896, 901, 904, 906, 914, 917)
+# Reading data
+tree <- read.tree(TREEPATH)
 clusters <- read.csv(CLUSPATH, sep=' ', header=FALSE)
 colnames(clusters) <- c('cluster', 'genome', 'start', 'end', 'color', 'seq')
 clusters <- clusters[c('cluster', 'genome', 'color')]
 clusters <- clusters[clusters$cluster %in% fortytwo, ]
 clusters$genome <- gsub('chl', '', clusters$genome)
-# IMPORTANT NOTE
-# THE CURRENT NEWICK FILE DOES NOT HAVE GENOMES STFRB508 AND 06. THIS WILL
-# CAUSE ERRORS SINCE THE REPINS DATASET HAS IT BUT THE TREE DOES NOT
-# clusters <- clusters[clusters$genome != 'StFRB508', ]
-# clusters <- clusters[clusters$genome != 'O6', ]
 clusters$cluster <- as.factor(clusters$cluster)
 
-# Testing cases where there are multiple REPINs of the same type in a cluster
-# clusters[nrow(clusters) + 1,] = c('952', 'TAMOak81', 'type2')
-# clusters[nrow(clusters) + 1,] = c('952', '189', 'type2')
-
-# Input data
-tree <- read.tree(TREEPATH)
-rayttree <- read.csv('./input/rayts.csv', sep=',')
-
 # Adding 'empty spaces with PCL1606
-# tree <- drop.tip(tree, 'PCL1606')
 clusters <- clusters[clusters$genome != 'PCL1606', ]
 for (clus in fortytwo){
   clus <- as.character(clus)
@@ -49,7 +41,6 @@ for (clus in fortytwo){
 }
 
 # ---------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------
 plot1 <- ggtree(tree, branch.length = 0.8)  +
   geom_tiplab(align=TRUE, linesize=.5, size=6) + 
   geom_fruit(data=rayttree,geom=geom_tile,
@@ -58,7 +49,7 @@ plot1 <- ggtree(tree, branch.length = 0.8)  +
   geom_treescale()
 numClus=length(fortytwo)
 for (cn in fortytwo){
-  cname <- as.character(cn) #141 DOES NOT WORK
+  cname <- as.character(cn)
   dclus <- clusters[clusters$cluster == cname, ]
 
   genomelist <- unique(dclus$genome)
@@ -94,7 +85,6 @@ for (cn in fortytwo){
                               ))
 }
 
-# Originally it was GBR xnow I am changing it to BRG
 color_values <- c("type2"="green4", "type0_1"="green4", "type0_2"="green",
                   "type1"="red4", "type1_1"="red4", "type1_2"="red",
                   "type0"="steelblue", "type2_1"="steelblue", "type2_2"="blue4")
@@ -103,8 +93,6 @@ plot1 <- plot1+scale_fill_manual(values=color_values)  +
   vexpand(0.04) +
   theme(text = element_text(family = "dejavusans", size=22))
 
-
-# ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 repcount <- data.frame(genome=unique(clusters$genome))
@@ -144,6 +132,6 @@ layout <- "
 BBBBBBBB
 #AAAAAAA
 "
-plot2/plot1 + plot_layout(design=layout)
-
+finalplot <- plot2/plot1 + plot_layout(design=layout)
+ggsave(PLOTSAVEPATH, device='pdf', height=20, width=20, units='in', dpi=300)
 
