@@ -94,9 +94,10 @@ for (cn in fortytwo){
                               ))
 }
 
-color_values <- c("type0"="green4", "type0_1"="green4", "type0_2"="green",
-                  "type2"="red4", "type1_1"="red4", "type1_2"="red",
-                  "type1"="steelblue", "type2_1"="steelblue", "type2_2"="blue4")
+# Originally it was GBR xnow I am changing it to BRG
+color_values <- c("type2"="green4", "type0_1"="green4", "type0_2"="green",
+                  "type1"="red4", "type1_1"="red4", "type1_2"="red",
+                  "type0"="steelblue", "type2_1"="steelblue", "type2_2"="blue4")
 
 plot1 <- plot1+scale_fill_manual(values=color_values)  +
   vexpand(0.04) +
@@ -126,11 +127,11 @@ plot2 <- ggtree(tree)  +
              pwidth=0.1, offset=0.9) +
   geom_treescale() + 
   scale_fill_manual(values=color_values) +
-  geom_facet(mapping=aes(x=type0), fill=repgreen, data=repcount, panel='Type 0',
+  geom_facet(mapping=aes(x=type0), fill=color_values['type0'], data=repcount, panel='Type 0',
              geom=geom_barh, stat='identity') +
-  geom_facet(mapping=aes(x=type1), fill=repred, data=repcount, panel='Type 1',
+  geom_facet(mapping=aes(x=type1), fill=color_values['type1'], data=repcount, panel='Type 1',
              geom=geom_barh, stat='identity') +
-  geom_facet(mapping=aes(x=type2), fill=repblue, data=repcount, panel='Type 2',
+  geom_facet(mapping=aes(x=type2), fill=color_values['type2'], data=repcount, panel='Type 2',
              geom=geom_barh, stat='identity') +
   xlim_expand(xlim=c(0,0.2), panel='Tree') +
   xlim_expand(xlim=c(0,42), panel='Type 0') +

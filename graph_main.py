@@ -84,12 +84,13 @@ def graph2():
             cluslen[key] = len(list(set(gens)))
 
         colorguide = {
-            'type0': '#008b00', #Green
-            'type1': '#4682b4', #Blue
-            'type2': '#8b0000', #Red
+            'type0': '#4682b4', #Blue
+            'type1': '#8b0000', #Red
+            'type2': '#008b00', #Green
             'all': 'black'
         }[keep_type]
         yax = cluslen.values()
+        print(keep_type, sum(yax))
         ybins = range(1, max(yax) + 1)
         ybins = range(1, 42)
         ybin_alternate = [str(x) if x % 2 == 0 or x == 1 else "" for x in ybins]
@@ -447,11 +448,11 @@ def main():
     read_input()
 
     # Primary Functions
-    # graph2()
+    graph2()
     # graph2b()
     # graph4()
     # graph5()
-    graph6()
+    # graph6()
 
 if __name__ == "__main__":
     main()
