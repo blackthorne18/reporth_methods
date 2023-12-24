@@ -14,8 +14,6 @@ FIGLOCATION = './temp/images/'
 plt.rcParams.update({'font.size': 20})
 LABELFONTSIZE = 24
 FIGUREDIMENSION = (12, 8)
-COLOR1='#07000a'
-COLOR2='#b813ff'
 
 
 
@@ -451,10 +449,10 @@ def main():
 
     # Primary Functions
     graph2()
-    # graph2b()
-    # graph4()
-    # graph5()
-    # graph6()
+    graph2b()
+    graph4()
+    graph5()
+    graph6()
 
 if __name__ == "__main__":
     main()

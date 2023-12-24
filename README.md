@@ -18,12 +18,11 @@ Runs the clustering algorithm on the input file. Note this is a local instance o
 > 'sortedrepins.txt' file as mentioned above, all REPINs from 'chlPCL1606' has been removed. I have not edited the 
 > RAREFAN output file to show the original dataset unmodified
 
-## How to use graph_main.py
-The figures are generated as per the function name.
-`KEEPTYPE` refers to whether you want the analysis to be done on one type of REPIN or on all. Choose the appopriate repin type
+A local version of REPORTH is used here for ease of testing, REPORTH installed from PyPI can also directly be used to generate clusters.
 
-The `temp/*.p` files are `pickle` files stored from the clustering program running. These are typically deleted on completion of the program but storing it makes it faster to work with the data.
-If you want the clustering algorithm to not delete the temporary files, comment out line 730 of `rc_entry.p` and it will not delete these temporary files. They are needed for `graph_main.py` to run
+## How to use graph_main.py
+Directly run the script as `python3 graph_main.py`. Each function generates a graph corresponding to the figure number in the REPORTH paper. The generated plots are stored in `temp/images/`.
+All global variables such as those defining paths to files are all listed at the top. of the script.
 
 ## How to use Output_Graphs?
 
