@@ -443,16 +443,73 @@ def graph6():
     plt.clf()
 
 
+def graph7():
+    # Histogram of distances between REPINs when there are two or more from the same genome
+    # Capture all instances, highlight the ones that are above 1000bp
+    HIGH_THRESH=1000
+    wgroups = {}
+    for key, val in clusters.items():
+        samegens = {}
+        wgroups[key] = []
+        for rep in val:
+            gen = rep.split('_')[0]
+            if gen not in samegens:
+                samegens[gen] = []
+            samegens[gen].append(rep)
+        samegens = [v for k,v in samegens.items() if len(v) > 1]
+        for item in samegens:
+            for x, r1 in enumerate(item):
+                for y, r2 in enumerate(item):
+                    if x == y:
+                        continue
+                    da = r1.split('_')
+                    da = [int(da[1]), int(da[2])]
+                    db = r2.split('_')
+                    db = [int(db[1]), int(db[2])]
+                    diffab = min(abs(da[1] - db[0]), abs(db[1] - da[0]))
+                    wgroups[key].append([diffab, r1, r2])
+    # Capturing the problematic ones first and all the ones to print
+    probs = {}
+    wgvals = []
+    for key, itemsx in wgroups.items():
+        if len(itemsx) == 0:
+            continue
+        for item in itemsx:
+            wgvals.append(item[0])
+            if item[0] > HIGH_THRESH:
+                if key not in probs:
+                    probs[key] = []
+                probs[key].append(item)
+    print(probs)
+    # Plotting the graph
+    fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
+    plt.hist(wgvals, color='black')
+    plt.ylabel('Number of occurrences',fontsize=LABELFONTSIZE)
+    plt.xlabel('Distance between REPINs from the same genome within the same cluster',fontsize=LABELFONTSIZE)
+    # plt.legend()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    plt.tight_layout()
+    plt.show()
+    # plt.savefig(FIGLOCATION + 'graph5.pdf', dpi=500, format='pdf')
+    plt.figure().clear()
+    plt.close()
+    plt.cla()
+    plt.clf()
+    pass
+
+
 def main():
     # Standard Reading of Inputs
     read_input()
 
     # Primary Functions
-    graph2()
-    graph2b()
-    graph4()
-    graph5()
-    graph6()
+    # graph2()
+    # graph2b()
+    # graph4()
+    # graph5()
+    # graph6()
+    graph7()
 
 if __name__ == "__main__":
     main()
