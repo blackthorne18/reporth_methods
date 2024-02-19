@@ -14,6 +14,7 @@ FIGLOCATION = './temp/images/'
 plt.rcParams.update({'font.size': 20})
 LABELFONTSIZE = 24
 FIGUREDIMENSION = (12, 8)
+# Only for figure 7 use (14, 8)
 
 
 
@@ -480,23 +481,22 @@ def graph7():
                 if key not in probs:
                     probs[key] = []
                 probs[key].append(item)
-    print(probs)
+    # print(probs)
     # Plotting the graph
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
     plt.hist(wgvals, color='black')
     plt.ylabel('Number of occurrences',fontsize=LABELFONTSIZE)
     plt.xlabel('Distance between REPINs from the same genome within the same cluster',fontsize=LABELFONTSIZE)
     # plt.legend()
+    plt.tight_layout()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.tight_layout()
-    plt.show()
-    # plt.savefig(FIGLOCATION + 'graph5.pdf', dpi=500, format='pdf')
+    # plt.show()
+    plt.savefig(FIGLOCATION + 'graph7.pdf', dpi=500, format='pdf')
     plt.figure().clear()
     plt.close()
     plt.cla()
     plt.clf()
-    pass
 
 
 def main():
