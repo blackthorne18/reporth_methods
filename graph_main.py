@@ -13,7 +13,7 @@ IGNOREDGENOMES = ['chlPCL1606']
 FIGLOCATION = './temp/images/'
 plt.rcParams.update({'font.size': 20})
 LABELFONTSIZE = 24
-FIGUREDIMENSION = (12, 8)
+FIGUREDIMENSION = (14, 8)
 # Only for figure 7 use (14, 8)
 
 
@@ -459,8 +459,10 @@ def graph7():
             samegens[gen].append(rep)
         samegens = [v for k,v in samegens.items() if len(v) > 1]
         for item in samegens:
-            for x, r1 in enumerate(item):
-                for y, r2 in enumerate(item):
+            for x in range(len(item)):
+                for y in range(x, len(item)):
+                    r1 = item[x]
+                    r2 = item[y]
                     if x == y:
                         continue
                     da = r1.split('_')
@@ -484,7 +486,8 @@ def graph7():
     # print(probs)
     # Plotting the graph
     fig, ax = plt.subplots(figsize=FIGUREDIMENSION)
-    plt.hist(wgvals, color='black')
+    countsxx, edgesxx, barsxx = plt.hist(wgvals, bins=range(0, 800, 100), color='black')
+    # plt.bar_label(barsxx)
     plt.ylabel('Number of occurrences',fontsize=LABELFONTSIZE)
     plt.xlabel('Distance between REPINs from the same genome within the same cluster',fontsize=LABELFONTSIZE)
     # plt.legend()
