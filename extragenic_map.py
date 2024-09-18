@@ -104,7 +104,7 @@ def map_egs():
             rep_pos  = [int(rep_pos[0]), int(rep_pos[1])]
             left_flank_rep = "left_{}_{}".format(rep_pos[0] - 1250, rep_pos[0] - 250)
             right_flank_rep = "right_{}_{}".format(rep_pos[1] + 250, rep_pos[1] + 1250)
-            egs_map[key][gen_name] = f"{left_flank_rep},{right_flank_rep}"
+            egs_map[key][gen_name] = [f"{left_flank_rep},{right_flank_rep}"]
             # Does the LHS of this REPIN exist in the genomes without a REPIN
             lhits = [x for x in lhs_hits[rep] if x[1] in gen_wo_repins]
             for item in lhits:
