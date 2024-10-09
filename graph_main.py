@@ -328,12 +328,12 @@ def graph5():
     neither = 1 - nboth
     print(f'Graph5\nProportion of both:{nboth}\nProportion of either:{neither}')
     plt.bar(range(len(gsum)), gsum.values(), color=['black', 'gray'])
-    plt.xticks(range(len(gsum)), ["Both", "Either"])
+    plt.xticks(range(len(gsum)), ["Both", "Single"])
     plt.ylabel("Number of REPINs", fontsize = LABELFONTSIZE)
     # plt.title("1.A. Left Flanking Sequnce")
     plt.subplot(1, 3, (2, 3))
     plt.bar(lbb, gbb, label='Both', color='black')
-    plt.bar(lbb, gbe, bottom=gbb, label='Either', color='gray')
+    plt.bar(lbb, gbe, bottom=gbb, label='Single', color='gray')
     plt.xticks(lbb, gennames, rotation=90)
     plt.ylabel("Number of REPINs", fontsize = LABELFONTSIZE)
     plt.legend()
@@ -510,9 +510,9 @@ def main():
     # graph2()
     # graph2b()
     # graph4()
-    # graph5()
+    graph5()
     # graph6()
-    graph7()
+    # graph7()
 
 if __name__ == "__main__":
     main()
